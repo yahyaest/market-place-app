@@ -38,5 +38,6 @@ model Image {
   productTitle String
   product      Product? @relation(fields: [productId], references: [id])
   productId    Int?
+  name         String
   url          String
 }
