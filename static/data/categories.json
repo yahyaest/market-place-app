@@ -1,0 +1,128 @@
+{
+  "categories": [
+    {
+      "name": "Electronics",
+      "subcategories": [
+        "Smartphones",
+        "Laptops",
+        "Audio & Headphones",
+        "Cameras & Photography",
+        "Gaming Consoles",
+        "Wearable Technology",
+        "Computer Accessory",
+        "TVs & Home Theater",
+        "Tablet"
+      ]
+    },
+    {
+      "name": "Fashion",
+      "subcategories": [
+        "Men's Clothing",
+        "Women's Clothing",
+        "Accessories",
+        "Shoes",
+        "Jewelry",
+        "Kids' Clothing",
+        "Sportswear",
+        "Watches"
+      ]
+    },
+    {
+      "name": "Home & Garden",
+      "subcategories": [
+        "Furniture",
+        "Appliances",
+        "Kitchen & Dining",
+        "Home Decor",
+        "Bedding & Bath",
+        "Gardening",
+        "Patio & Outdoor Furniture",
+        "Home Improvement"
+      ]
+    },
+    {
+      "name": "Books",
+      "subcategories": [
+        "Fiction",
+        "Non-Fiction",
+        "Mystery",
+        "Science Fiction",
+        "Romance",
+        "Self-Help",
+        "Cookbooks",
+        "History"
+      ]
+    },
+    {
+      "name": "Sports & Outdoors",
+      "subcategories": [
+        "Fitness Equipment",
+        "Team Sports",
+        "Camping Gear",
+        "Hiking & Climbing",
+        "Biking",
+        "Fishing"
+      ]
+    },
+
+    {
+      "name": "Automotive",
+      "subcategories": [
+        "Cars",
+        "Car Accessories",
+        "Tools & Equipment",
+        "Electronics & GPS",
+        "Motorcycles",
+        "Bikes",
+        "Car Care & Maintenance",
+        "Boats"
+      ]
+    },
+    {
+      "name": "Pets",
+      "subcategories": [
+        "Dog Supplies",
+        "Cat Supplies",
+        "Fish & Aquariums",
+        "Small Animal Supplies",
+        "Bird Supplies",
+        "Reptile & Amphibian Supplies",
+        "Pet Food",
+        "Pet Grooming"
+      ]
+    },
+    {
+      "name": "Health & Wellness",
+      "subcategories": [
+        "Vitamins & Supplements",
+        "Fitness Wearables",
+        "Health Monitors",
+        "Medical Equipment",
+        "Nutrition",
+        "Weight Management",
+        "Natural Remedies",
+        "Dental Care"
+      ]
+    },
+
+    {
+      "name": "Real Estate",
+      "subcategories": [
+        "Houses",
+        "Apartments",
+        "Condos",
+        "Townhouses",
+        "Office Space",
+        "Retail Space",
+        "Industrial Space",
+        "Land",
+        "Beach Houses",
+        "Rent"
+      ]
+    },
+    {
+      "name": "Others",
+      "subcategories": ["Others"]
+    }
+  ]
+}

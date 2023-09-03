@@ -1,4 +1,6 @@
 import axios from 'axios';
+import tunisiaStatesData from '../../static/data/tunisiaStates.json';
+import tunisiaCitiesData from '../../static/data/tunisiaCities.json';
 
 export const getCountries = async () => {
 	try {
@@ -50,6 +52,25 @@ export const getStateCities = async (country: string, state: string) => {
 	}
 };
 
+export const getTunisiaStates = () => {
+	const tunisiaStates = [];
+	for (const state of tunisiaStatesData) {
+		tunisiaStates.push(state.name);
+	}
+	return tunisiaStates;
+};
+
+export const getTunisiaStateCities = (state: string) => {
+	const tunisiaStateCities = [];
+	const tunisiaStateCitiesData = tunisiaCitiesData.filter((city) => city.governoratexid === state);
+	for (const city of tunisiaStateCitiesData) {
+		tunisiaStateCities.push(city.name);
+	}
+	return tunisiaStateCities;
+};
+
 // getCountries();
 // getCountryStates('United States');
 // getStateCities('United States', 'Florida');
+// getTunisiaStates();
+// getTunisiaStateCities('Nabeul')

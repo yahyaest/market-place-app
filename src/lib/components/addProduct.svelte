@@ -1,6 +1,12 @@
 <script lang="ts">
 	import axios from 'axios';
-	import { getCountries, getCountryStates, getStateCities } from '../../service/countries';
+	import {
+		getCountries,
+		getCountryStates,
+		getStateCities,
+		getTunisiaStateCities,
+		getTunisiaStates
+	} from '../../service/countries';
 
 	let name = '';
 	let username = '';
@@ -16,27 +22,25 @@
 	let states: any[] | undefined = [];
 	let cities: any[] | undefined = [];
 
-	let region = '';
-
-	function handleChange(event) {
-		if (event.target.name === 'region') {
-			region = event.target.value;
-		} else if (event.target.name === 'phone') {
-			phone = event.target.value;
-		}
-	}
-
 	const setCountries = async () => {
 		countries = await getCountries();
 	};
 	setCountries();
 
 	const setStates = async () => {
-		states = await getCountryStates(country);
+		if (country === 'Tunisia') {
+			states = getTunisiaStates();
+		} else {
+			states = await getCountryStates(country);
+		}
 	};
 
 	const setCities = async () => {
-		cities = await getStateCities(country, state);
+		if (country === 'Tunisia') {
+			cities = getTunisiaStateCities(state);
+		} else {
+			cities = await getStateCities(country, state);
+		}
 	};
 
 	function handleCountryChange(event) {
