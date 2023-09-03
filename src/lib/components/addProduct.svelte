@@ -1,11 +1,60 @@
 <script lang="ts">
 	import axios from 'axios';
+	import { getCountries, getCountryStates, getStateCities } from '../../service/countries';
 
 	let name = '';
 	let username = '';
 	let price = '';
 	let category = '';
 	let description = '';
+	let phoneNumber = '';
+	let areacode = '';
+	let country = '';
+	let state = '';
+	let city = '';
+	let countries: any[] | undefined = [];
+	let states: any[] | undefined = [];
+	let cities: any[] | undefined = [];
+
+	let region = '';
+
+	function handleChange(event) {
+		if (event.target.name === 'region') {
+			region = event.target.value;
+		} else if (event.target.name === 'phone') {
+			phone = event.target.value;
+		}
+	}
+
+	const setCountries = async () => {
+		countries = await getCountries();
+	};
+	setCountries();
+
+	const setStates = async () => {
+		states = await getCountryStates(country);
+	};
+
+	const setCities = async () => {
+		cities = await getStateCities(country, state);
+	};
+
+	function handleCountryChange(event) {
+		country = event.target.value;
+		setStates();
+		state = '';
+		city = '';
+	}
+
+	function handleStateChange(event) {
+		state = event.target.value;
+		setCities();
+		city = '';
+	}
+
+	function handleCityChange(event) {
+		city = event.target.value;
+	}
 
 	async function handleSubmit(event) {
 		event.preventDefault();
@@ -13,9 +62,13 @@
 		const productData = {
 			name,
 			username,
-			price: parseFloat(price), // Convert price to a number
+			price: parseInt(price), // Convert price to a number
 			category,
-			description
+			description,
+			phone: `+${areacode} ${phoneNumber}`,
+			country,
+			state,
+			city
 		};
 
 		try {
@@ -24,12 +77,9 @@
 			if (response.status === 201) {
 				// Product created successfully, you can handle this case
 				console.log('Product created successfully');
-				// Optionally, reset the form fields
-				name = '';
-				username = '';
-				price = '';
-				category = '';
-				description = '';
+				// Toast
+
+				// Rdirect
 			} else {
 				// Handle errors here if needed
 				console.error('Failed to create product');
@@ -94,6 +144,84 @@
 				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 				bind:value={description}
 			/>
+		</div>
+		<!-- 
+		<div>
+			<label for="phone" class="block text-sm font-medium text-gray-700"> Phone </label>
+			<input
+				type="text"
+				id="phone"
+				name="phone"
+				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+				bind:value={phone}
+			/>
+		</div> -->
+
+		<div>
+			<label for="country" class="block text-sm font-medium text-gray-700"> Country </label>
+			<select
+				class="select select-primary w-full max-w-xs"
+				on:change={handleCountryChange}
+				bind:value={country}
+			>
+				<option disabled selected>Select A Country</option>
+				{#each countries as country}
+					<option value={country}>{country}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div>
+			<label for="state" class="block text-sm font-medium text-gray-700"> State </label>
+			<select
+				class="select select-primary w-full max-w-xs"
+				on:change={handleStateChange}
+				bind:value={state}
+			>
+				<option disabled selected>Select A State</option>
+				{#each states as state}
+					<option value={state}>{state}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div>
+			<label for="city" class="block text-sm font-medium text-gray-700"> City </label>
+			<select
+				class="select select-primary w-full max-w-xs"
+				on:change={handleCityChange}
+				bind:value={city}
+			>
+				<option disabled selected>Select A City</option>
+				{#each cities as city}
+					<option value={city}>{city}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="form-control">
+			<label class="label">
+				<span class="label-text">Phone</span>
+			</label>
+			<label class="input-group">
+				<span>+</span>
+				<input
+					type="number"
+					placeholder="216"
+					min="0"
+					max="999"
+					class="input input-bordered w-20"
+					bind:value={areacode}
+				/>
+				<input
+					type="number"
+					placeholder="55 555 555"
+					min="0"
+					max="99999999"
+					class="input input-bordered"
+					bind:value={phoneNumber}
+				/>
+			</label>
 		</div>
 
 		<div>

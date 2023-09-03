@@ -14,11 +14,29 @@ model Product {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  name        String
+  title       String
   username    String
   description String
   price       Int
   category    String
+  subCategory String
+  tags        String
+  phone       String
+  country     String
+  state       String
+  city        String?
+  images      Image[]
 
-  @@unique([name, username])
+  @@unique([title, username])
+}
+
+model Image {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  username     String
+  productTitle String
+  product      Product? @relation(fields: [productId], references: [id])
+  productId    Int?
+  url          String
 }
