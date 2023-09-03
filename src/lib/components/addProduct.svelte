@@ -177,6 +177,7 @@
 				class="select select-primary w-full max-w-xs"
 				on:change={handleStateChange}
 				bind:value={state}
+				disabled={country.length === 0 ? true : false}
 			>
 				<option disabled selected>Select A State</option>
 				{#each states as state}
@@ -191,6 +192,7 @@
 				class="select select-primary w-full max-w-xs"
 				on:change={handleCityChange}
 				bind:value={city}
+				disabled={state.length === 0 ? true : false}
 			>
 				<option disabled selected>Select A City</option>
 				{#each cities as city}
