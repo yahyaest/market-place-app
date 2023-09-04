@@ -24,6 +24,7 @@
 	let states: any[] | undefined = [];
 	let cities: any[] | undefined = [];
 	let file: any = null;
+	let files: any[] = [];
 
 	const setCountries = async () => {
 		countries = await getCountries();
@@ -63,23 +64,19 @@
 		city = event.target.value;
 	}
 
-	const uploadImage = async () => {
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('username', 'username');
-		formData.append('productTitle', 'productTitle');
-		formData.append('name', 'name');
-		try {
-			const response = await axios.post('/api/images', formData);
-
-			if (response.status === 201) {
-				const image = response.data;
-				console.log('Image uploaded:', image);
-			} else {
-				console.error('Upload failed:', response.statusText);
+	const uploadImage = async (product : any) => {
+		for (const file of files) {
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('username', 'username');
+			formData.append('productTitle', product.title);
+			formData.append('productId', product.id);
+			formData.append('name', file.name);
+			try {
+				const response = await axios.post('/api/images', formData);
+			} catch (error) {
+				console.error('Error:', error);
 			}
-		} catch (error) {
-			console.error('Error:', error);
 		}
 	};
 
@@ -102,7 +99,8 @@
 
 		try {
 			const response = await axios.post('/api/products', productData);
-			await uploadImage();
+			const createdProduct = response.data
+			await uploadImage(createdProduct);
 
 			if (response.status === 201) {
 				// Product created successfully, you can handle this case
@@ -256,7 +254,7 @@
 			</label>
 		</div>
 
-		<UploadProductImages bind:file />
+		<UploadProductImages bind:file bind:files />
 		<div>
 			<button type="submit" class="btn btn-primary p-2"> Add Product </button>
 		</div>

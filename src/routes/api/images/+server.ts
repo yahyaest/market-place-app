@@ -33,6 +33,7 @@ export const POST: RequestHandler = async ({ request }): Promise<Response> => {
 		const payload = {
 			username: body.get('username'),
 			productTitle: body.get('productTitle'),
+			productId: parseInt(body.get('productId') as string),
 			name: body.get('name'),
 			url: `/images/products/${filename}`
 		};
@@ -40,7 +41,7 @@ export const POST: RequestHandler = async ({ request }): Promise<Response> => {
 			data: payload
 		});
 
-		return json(image);
+		return json({image},{status:201});
 	} catch (err) {
 		console.log(err);
 		throw error(400, { message: 'Failed to POST Product' });

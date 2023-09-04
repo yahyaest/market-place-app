@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request }): Promise<Response> => {
 			data: body
 		});
 
-		return json(product);
+		return json({product}, {status:201});
 	} catch (err) {
 		console.error(err);
 		throw error(400, { message: 'Failed to POST Product' });
