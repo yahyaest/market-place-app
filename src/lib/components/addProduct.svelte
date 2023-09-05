@@ -8,12 +8,14 @@
 		getTunisiaStates
 	} from '../../service/countries';
 
-	import UploadProductImages from '$lib/components/uploadProductImages.svelte';
+	import UploadProductImages from '$lib/components/productPage/uploadProductImages.svelte';
+	import ProductCategory from './productPage/productCategory.svelte';
 
 	let title = '';
 	let username = '';
 	let price = '';
 	let category = '';
+	let subCategory =  ''
 	let description = '';
 	let phoneNumber = '';
 	let areacode = '';
@@ -88,7 +90,7 @@
 			username,
 			price: parseInt(price), // Convert price to a number
 			category,
-			subCategory: category,
+			subCategory,
 			description,
 			phone: `+${areacode} ${phoneNumber}`,
 			country,
@@ -99,7 +101,7 @@
 
 		try {
 			const response = await axios.post('/api/products', productData);
-			const createdProduct = response.data
+			const createdProduct = response.data.product
 			await uploadImage(createdProduct);
 
 			if (response.status === 201) {
@@ -153,7 +155,7 @@
 			/>
 		</div>
 
-		<div>
+		<!-- <div>
 			<label for="category" class="block text-sm font-medium text-gray-700"> Category </label>
 			<input
 				type="text"
@@ -162,8 +164,9 @@
 				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
 				bind:value={category}
 			/>
-		</div>
+		</div> -->
 
+		<ProductCategory bind:category bind:subCategory/>
 		<div>
 			<label for="description" class="block text-sm font-medium text-gray-700"> Description </label>
 			<textarea
