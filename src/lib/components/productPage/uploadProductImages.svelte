@@ -21,7 +21,7 @@
 
 <div class="max-w-screen-md w-full">
 	<div class="form-control w-full max-w-xs my-10 mx-auto text-center">
-		<img src={previewURL} alt="photoURL" width="256" height="256" class="mx-auto" />
+		<img src={previewURL} alt="photoURL" width="350" height="350" class="mx-auto" />
 		<label for="photoURL" class="label">
 			<span class="label-text">Pick a file</span>
 		</label>
@@ -40,7 +40,7 @@
 	<div class="flex flex-wrap">
 		{#each $imagesUrl as url, index (url)}
 			<div>
-				<img src={url} alt="photoURL" width="100" height="100" class="mx-auto" />
+				<img src={url} alt="photoURL" width="150" height="150" class="mx-2" />
 				<button
 					class="btn btn-circle btn-error btn-xs"
 					on:click={() => {
