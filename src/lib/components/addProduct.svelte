@@ -1,8 +1,12 @@
 <script lang="ts">
 	import axios from 'axios';
+	import { writable, type Writable } from 'svelte/store';
 	import UploadProductImages from '$lib/components/productPage/uploadProductImages.svelte';
 	import ProductCategory from './productPage/productCategory.svelte';
 	import ProductLocation from './productPage/productLocation.svelte';
+	import ProductTags from './productPage/productTags.svelte';
+
+	export let tags: Writable<string[]> = writable([]);
 
 	let title = '';
 	let username = '';
@@ -34,7 +38,23 @@
 		}
 	};
 
-	async function handleSubmit(event: SubmitEvent) {
+	const uploadTags = async (product: any) => {
+		for (const tag of $tags) {
+			try {
+				const payload = {
+					name: tag,
+					username: 'username',
+					productTitle: product.title,
+					productId: product.id
+				};
+				const response = await axios.post('/api/tags', payload);
+			} catch (error) {
+				console.error('Error:', error);
+			}
+		}
+	};
+
+	async function handleSubmit(event: MouseEvent) {
 		event.preventDefault();
 
 		const productData = {
@@ -47,14 +67,14 @@
 			phone: `+${areacode} ${phoneNumber}`,
 			country,
 			state,
-			city,
-			tags: 'tags'
+			city
 		};
 
 		try {
 			const response = await axios.post('/api/products', productData);
 			const createdProduct = response.data.product;
 			await uploadImage(createdProduct);
+			await uploadTags(createdProduct);
 
 			if (response.status === 201) {
 				// Product created successfully, you can handle this case
@@ -72,7 +92,7 @@
 	}
 </script>
 
-<form on:submit={handleSubmit}>
+
 	<div class="space-y-12 mx-auto w-4/5 sm:w-1/2">
 		<div>
 			<label for="title" class="block text-sm font-medium text-gray-700"> Title </label>
@@ -146,8 +166,9 @@
 		</div>
 
 		<UploadProductImages bind:file bind:files />
+
+		<ProductTags bind:tags />
 		<div>
-			<button type="submit" class="btn btn-primary p-2"> Add Product </button>
+			<button class="btn btn-primary p-2" on:click={(e) => handleSubmit(e)}> Add Product </button>
 		</div>
 	</div>
-</form>

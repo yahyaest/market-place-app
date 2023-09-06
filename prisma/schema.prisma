@@ -20,12 +20,12 @@ model Product {
   price       Int
   category    String
   subCategory String
-  tags        String
   phone       String
   country     String
   state       String
   city        String?
   images      Image[]
+  tags        Tag[]
 
   @@unique([title, username])
 }
@@ -40,4 +40,18 @@ model Image {
   productId    Int?
   name         String
   url          String
+}
+
+model Tag {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  username     String
+  productTitle String
+  product      Product? @relation(fields: [productId], references: [id])
+  productId    Int?
+  name         String
+
+    @@unique([name, productId])
+
 }
