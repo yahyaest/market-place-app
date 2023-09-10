@@ -1,12 +1,20 @@
 <script lang="ts">
-    let email : string;
-    let username : string
-    let password : string
-    let password2 : string
-    let phone : number
+	import Cookies from "js-cookie";
+	import { getCurrentUser, register, uploadImage } from "../../../service/gateway";
+	import { goto } from "$app/navigation";
+	import type { PageData } from "./$types";
+
+	export let data: PageData;
+
+	let email: string;
+	let username: string;
+	let password: string;
+	let password2: string;
+	let phone: number;
 	let previewURL: string;
 	let file: any = null;
 	let uploading = false;
+
 
 	const previewImage = (e: any) => {
 		uploading = true;
@@ -14,6 +22,26 @@
 		previewURL = URL.createObjectURL(file);
 		uploading = false;
 	};
+
+	const submit = async() => {
+		try {
+      if (password !== password2) {
+        alert("Passwords does not match");
+      }
+      const isRegister = await register(data.gatewayBaseUrl as string, {username, email, password, phone});
+      if (!isRegister) {
+        alert("Wrong Credential");
+      } else {
+        const user = await getCurrentUser(data.gatewayBaseUrl as string);
+        Cookies.set("user", JSON.stringify(user));
+        // upload image
+        await uploadImage(data.gatewayBaseUrl as string, file, user?.email as string);
+        goto("/");
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+	}
 </script>
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -31,9 +59,7 @@
 	<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
 		<div class="space-y-6">
 			<div>
-				<label for="email" class="block text-sm font-medium leading-6"
-					>Email address</label
-				>
+				<label for="email" class="block text-sm font-medium leading-6">Email address</label>
 				<div class="mt-2">
 					<input
 						id="email"
@@ -42,14 +68,13 @@
 						autocomplete="email"
 						required
 						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        bind:value={email}
+						bind:value={email}
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label for="username" class="block text-sm font-medium leading-6">Username</label
-				>
+				<label for="username" class="block text-sm font-medium leading-6">Username</label>
 				<div class="mt-2">
 					<input
 						id="username"
@@ -58,15 +83,13 @@
 						autocomplete="username"
 						required
 						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        bind:value={username}
+						bind:value={username}
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label for="password" class="block text-sm font-medium leading-6"
-					>Password</label
-				>
+				<label for="password" class="block text-sm font-medium leading-6">Password</label>
 				<div class="mt-2">
 					<input
 						id="password"
@@ -75,15 +98,13 @@
 						autocomplete="current-password"
 						required
 						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        bind:value={password}
+						bind:value={password}
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label for="password2" class="block text-sm font-medium leading-6"
-					>Confirm Password</label
-				>
+				<label for="password2" class="block text-sm font-medium leading-6">Confirm Password</label>
 				<div class="mt-2">
 					<input
 						id="password2"
@@ -92,14 +113,13 @@
 						autocomplete="current-password"
 						required
 						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        bind:value={password2}
+						bind:value={password2}
 					/>
 				</div>
 			</div>
 
 			<div>
-				<label for="phone" class="block text-sm font-medium leading-6">Phone</label
-				>
+				<label for="phone" class="block text-sm font-medium leading-6">Phone</label>
 				<div class="mt-2">
 					<input
 						id="phone"
@@ -108,14 +128,12 @@
 						autocomplete="cc-number"
 						required
 						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        bind:value={phone}
+						bind:value={phone}
 					/>
 				</div>
 			</div>
 
-			<h2 class="font-semibold leading-6">
-				Upload Your Account Photo
-			</h2>
+			<h2 class="font-semibold leading-6">Upload Your Account Photo</h2>
 
 			<div class="max-w-screen-md w-full">
 				<div class="form-control w-full max-w-xs my-10 mx-auto text-center">
@@ -129,7 +147,7 @@
 						on:change={previewImage}
 						name="photoURL"
 						type="file"
-						class="file-input file-input-bordered file-input-primary w-full max-w-xs "
+						class="file-input file-input-bordered file-input-primary w-full max-w-xs"
 						accept="image/*"
 					/>
 					{#if uploading}
@@ -143,16 +161,15 @@
 				<button
 					type="submit"
 					class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 btn btn-primary"
+					on:click={submit}
 					>Register</button
 				>
 				<p class="mt-10 text-center text-sm">
 					Already a member?
-					<a href="#" class="font-semibold leading-6"
-						>Sign In</a
-					>
+					<a href="#" class="font-semibold leading-6">Sign In</a>
 				</p>
 				<a
-                    href="login"
+					href="login"
 					class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 btn btn-primary"
 					>Sign in</a
 				>

@@ -1,6 +1,28 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
+	import Cookies from "js-cookie";
+	import { getCurrentUser, login } from "../../../service/gateway";
+	import type { PageData } from "./$types";
+
+	export let data: PageData;
+
 	let email: string;
 	let password: string;
+
+	const submit = async () => {
+    try {
+      const isLogin = await login(data.gatewayBaseUrl as string, email, password);
+      if (!isLogin) {
+        alert("Wrong Credential");
+      } else {
+        const user = await getCurrentUser(data.gatewayBaseUrl as string);
+        Cookies.set("user", JSON.stringify(user));
+        goto("/");
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
 </script>
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -58,6 +80,7 @@
 				<button
 					type="submit"
 					class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 btn btn-primary"
+					on:click={submit}
 					>Sign in</button
 				>
 				<p class="mt-10 text-center text-sm">
