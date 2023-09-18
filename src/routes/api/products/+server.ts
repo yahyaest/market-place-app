@@ -13,8 +13,8 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 			queryParams[key] = value;
 		}
 
-		if (queryParams['id']){
-			queryParams['id'] = + queryParams['id']
+		if (queryParams['id']) {
+			queryParams['id'] = +queryParams['id'];
 		}
 
 		if (Object.keys(queryParams).length === 0) {
@@ -23,11 +23,19 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 			return json({ products }, { status: 200 });
 		} else {
 			// If there are query parameters, retrieve a product by query
-			const product = await prisma.product.findUnique({
-				where: queryParams
-			});
+			if (queryParams['slug']) {
+				const product = await prisma.product.findUnique({
+					where: queryParams
+				});
 
-			return json({ product : product ? product : [] }, { status: 200 });
+				return json({ product: product ? product : [] }, { status: 200 });
+			} else {
+				const products = await prisma.product.findMany({
+					where: queryParams
+				});
+
+				return json({ products }, { status: 200 });
+			}
 		}
 	} catch (err) {
 		console.error(err);

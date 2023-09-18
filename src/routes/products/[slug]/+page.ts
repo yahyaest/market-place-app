@@ -5,10 +5,18 @@ export const load = (async ({ params }) => {
 	const { slug } = params;
 
 	try {
-		const response = await axios.get(`/api/products/?slug=${slug}`);
-		const product = response.data.product;
+        // Get product
+		const productResponse = await axios.get(`/api/products/?slug=${slug}`);
+		const product = productResponse.data.product;
 
-		return {product};
+        // Get product images
+        const imagesResponse = await axios.get(`/api/images/?productId=${product.id}`);
+        const productImages = imagesResponse.data.product;
+        // Get product tags
+        const tagsResponse = await axios.get(`/api/tags/?productId=${product.id}`);
+        const productTags = tagsResponse.data.product;
+
+		return {product, productImages,productTags};
 	} catch (error) {
 		console.error('Error:', error);
 		return {error};
