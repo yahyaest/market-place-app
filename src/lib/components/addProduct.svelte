@@ -57,8 +57,11 @@
 	async function handleSubmit(event: MouseEvent) {
 		event.preventDefault();
 
+		const slug = title.replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+
 		const productData = {
 			title,
+			slug,
 			username,
 			price: parseInt(price), // Convert price to a number
 			category,

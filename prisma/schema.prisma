@@ -15,6 +15,7 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   title       String
+  slug        String
   username    String
   description String
   price       Int

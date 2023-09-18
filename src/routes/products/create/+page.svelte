@@ -3,7 +3,7 @@
 </script>
 
 <div>
-	<!-- Other content -->
+	<h1 class="text-3xl	text-center font-bold font-mono mb-5">Add new Product</h1>
 
 	<AddProduct />
 </div>
