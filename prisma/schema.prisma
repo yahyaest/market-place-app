@@ -29,6 +29,7 @@ model Product {
   tags        Tag[]
 
   @@unique([title, username])
+  @@unique([slug])
 }
 
 model Image {
