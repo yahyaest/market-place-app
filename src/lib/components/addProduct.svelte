@@ -5,8 +5,11 @@
 	import ProductCategory from './productPage/productCategory.svelte';
 	import ProductLocation from './productPage/productLocation.svelte';
 	import ProductTags from './productPage/productTags.svelte';
+	import { addThread } from '../../service/comment';
+	import Cookies from 'js-cookie';
 
 	export let tags: Writable<string[]> = writable([]);
+	export let baseUrl = ''
 
 	let title = '';
 	let username = '';
@@ -78,6 +81,8 @@
 			const createdProduct = response.data.product;
 			await uploadImage(createdProduct);
 			await uploadTags(createdProduct);
+			const token = Cookies.get("token") as string;
+			await addThread(baseUrl, token, slug)
 
 			if (response.status === 201) {
 				// Product created successfully, you can handle this case
