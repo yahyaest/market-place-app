@@ -3,7 +3,9 @@
 	import type { PageData } from './$types';
 	import Cookies from 'js-cookie';
 	import type { Comment } from '../../../models/comment';
+	import { writable, type Writable } from 'svelte/store';
 	import { addComment, getThreadByName, getThreadComments } from '../../../service/comment';
+	import { getCurrentUserAvatar } from '../../../service/gateway';
 
 	export let data: PageData;
 
@@ -13,7 +15,7 @@
 	const error = data.error;
 
 	let comment = '';
-	let productComments: Comment[] = [];
+	let productComments: Writable<Comment[]> = writable([]);
 
 	const tagSeverity = [
 		'badge-info',
@@ -26,18 +28,55 @@
 		'badge-ghost'
 	];
 
+	const months = [
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'May',
+		'Jun',
+		'Jul',
+		'Aug',
+		'Sep',
+		'Oct',
+		'Nov',
+		'Dec'
+	];
+
+	const formatDate = (date: string) => {
+		const inputDate = new Date(date);
+		const formattedDate = `${
+			months[inputDate.getMonth()]
+		} ${inputDate.getDate()}, ${inputDate.getFullYear()} ${inputDate.toLocaleTimeString([], {
+			hour: '2-digit',
+			minute: '2-digit'
+		})}`;
+		return formattedDate;
+	};
+
 	const getProductComments = async () => {
 		const commentBaseUrl = data.commentBaseUrl as string;
 		const token = Cookies.get('token') as string;
 		const thread = await getThreadByName(commentBaseUrl, token, product?.slug as string);
-		productComments = await getThreadComments(commentBaseUrl, token, thread?.id as number);
+		const comments = await getThreadComments(commentBaseUrl, token, thread?.id as number);
+		productComments.set(comments);
 	};
 
 	const submitComment = async () => {
 		const commentBaseUrl = data.commentBaseUrl as string;
+		const gatewayBaseUrl = data.gatewayBaseUrl as string;
 		const token = Cookies.get('token') as string;
 		const thread = await getThreadByName(commentBaseUrl, token, product?.slug as string);
-		await addComment(commentBaseUrl, token, comment, thread?.id as number);
+		const userImage = (await getCurrentUserAvatar(gatewayBaseUrl)) as string;
+		const submittedComment = await addComment(
+			commentBaseUrl,
+			token,
+			comment,
+			userImage,
+			thread?.id as number
+		);
+		productComments.update((arr) => [submittedComment, ...arr]);
+		comment = '';
 	};
 
 	let openDropdowns = new Array(productComments.length).fill(false);
@@ -141,7 +180,7 @@
 							Post comment
 						</button>
 					</form>
-					{#each productComments as comment, index (comment)}
+					{#each $productComments as comment, index (comment)}
 						<article class="p-6 mb-3 text-base bg-white rounded-lg dark:bg-gray-900 rounded-lg">
 							<footer class="flex justify-between items-center mb-2">
 								<div class="flex items-center">
@@ -150,13 +189,13 @@
 									>
 										<img
 											class="mr-2 w-6 h-6 rounded-full"
-											src="https://flowbite.com/docs/images/people/profile-picture-2.jpg"
+											src={comment.userImage ? comment.userImage : '/images/default_avatar.webp'}
 											alt="Michael Gough"
-										/>{comment.userEmail}
+										/>{comment.username}
 									</p>
 									<p class="text-sm text-gray-600 dark:text-gray-400">
 										<time pubdate datetime="2022-02-08" title="February 8th, 2022"
-											>{comment.createdAt.split('.')[0].replace('T', ' ')}</time
+											>{formatDate(comment.createdAt)}</time
 										>
 									</p>
 								</div>

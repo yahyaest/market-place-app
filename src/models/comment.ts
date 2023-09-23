@@ -3,6 +3,8 @@ export interface Comment {
 	createdAt: string;
 	updatedAt: string;
 	userEmail: string;
+	username: string;
+	userImage: string;
 	userId: number;
 	content: string;
 	threadId: number;

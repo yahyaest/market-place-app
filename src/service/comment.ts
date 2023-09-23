@@ -79,7 +79,13 @@ export const getThreadComments = async (baseUrl: string, token: string, threadId
 	}
 };
 
-export const addComment = async (baseUrl: string, token: string, commentContent: string,  threadId: number) => {
+export const addComment = async (
+	baseUrl: string,
+	token: string,
+	commentContent: string,
+	userImage: string,
+	threadId: number
+) => {
 	try {
 		const commentBaseUrl = baseUrl;
 		const commentUrl = `${commentBaseUrl}/api/comments`;
@@ -94,7 +100,14 @@ export const addComment = async (baseUrl: string, token: string, commentContent:
 			throw Error('Failed to retreive logged user');
 		}
 
-		const payload = { userEmail: user.email, userId: user.id, content:commentContent, threadId };
+		const payload = {
+			userEmail: user.email,
+			username: user.username,
+			userId: user.id,
+			userImage,
+			content: commentContent,
+			threadId
+		};
 
 		const options = {
 			headers: {
