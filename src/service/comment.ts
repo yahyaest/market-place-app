@@ -8,7 +8,7 @@ export const getThreadByName = async (baseUrl: string, token: string, threadName
 		const threadUrl = `${commentBaseUrl}/api/threads/?name=${threadName}`;
 
 		if (!token) {
-			throw Error('No token was provided. Failed to get transaction data');
+			throw Error('No token was provided. Failed to get thread data');
 		}
 
 		const options = {
@@ -31,7 +31,7 @@ export const addThread = async (baseUrl: string, token: string, threadName: stri
 		const threadUrl = `${commentBaseUrl}/api/threads`;
 
 		if (!token) {
-			throw Error('No token was provided. Failed to get transaction data');
+			throw Error('No token was provided. Failed to post thread');
 		}
 
 		const user = JSON.parse(Cookies.get('user') as string);
@@ -62,7 +62,7 @@ export const getThreadComments = async (baseUrl: string, token: string, threadId
 		const commentUrl = `${commentBaseUrl}/api/comments/?threadId=${threadId}`;
 
 		if (!token) {
-			throw Error('No token was provided. Failed to get transaction data');
+			throw Error('No token was provided. Failed to get thread comments');
 		}
 
 		const options = {
@@ -91,7 +91,7 @@ export const addComment = async (
 		const commentUrl = `${commentBaseUrl}/api/comments`;
 
 		if (!token) {
-			throw Error('No token was provided. Failed to get transaction data');
+			throw Error('No token was provided. Failed to post comment');
 		}
 
 		const user = JSON.parse(Cookies.get('user') as string);
@@ -107,6 +107,73 @@ export const addComment = async (
 			userImage,
 			content: commentContent,
 			threadId
+		};
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.post(commentUrl, payload, options);
+		const comment = response.data;
+
+		return comment;
+	} catch (error) {
+		console.error('Failed to create comment :', error);
+	}
+};
+
+export const getCommentReplies = async (baseUrl: string, token: string, commentId: number) => {
+	try {
+		const commentBaseUrl = baseUrl;
+		const commentUrl = `${commentBaseUrl}/api/replies/?commentId=${commentId}`;
+
+		if (!token) {
+			throw Error('No token was provided. Failed to get thread replies');
+		}
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.get(commentUrl, options);
+		const replies = response.data.reverse();
+
+		return replies;
+	} catch (error) {
+		console.error('Failed to get thread replies :', error);
+	}
+};
+
+export const addReply = async (
+	baseUrl: string,
+	token: string,
+	replyContent: string,
+	userImage: string,
+	commentId: number
+) => {
+	try {
+		const commentBaseUrl = baseUrl;
+		const commentUrl = `${commentBaseUrl}/api/replies`;
+
+		if (!token) {
+			throw Error('No token was provided. Failed to post reply');
+		}
+
+		const user = JSON.parse(Cookies.get('user') as string);
+
+		if (!user) {
+			throw Error('Failed to retreive logged user');
+		}
+
+		const payload = {
+			userEmail: user.email,
+			username: user.username,
+			userId: user.id,
+			userImage,
+			content: replyContent,
+			commentId
 		};
 
 		const options = {
