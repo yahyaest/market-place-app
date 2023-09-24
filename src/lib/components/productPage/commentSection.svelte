@@ -143,15 +143,18 @@
 		getProductReplies();
 		// set productCommentReplies
 		const allReplies = [];
-		for (const e of $productReplies) {
+		for (const e of $productReplies as {
+			commentId: number;
+			commentReplies: Reply[];
+		}[]) {
 			allReplies.push(e.commentReplies);
 		}
 		productCommentReplies.set(allReplies);
 	});
 </script>
 
-<section class=" py-8 lg:py-16 antialiased">
-	<div class="max-w-2xl mx-auto px-4">
+<section class=" py-8 lg:py-16">
+	<div class="mx-auto px-4 w-4/5 sm:w-3/4">
 		<div class="flex justify-between items-center mb-6">
 			<h2 class="text-lg lg:text-2xl font-bold">Discussion ({$productComments.length})</h2>
 		</div>
@@ -172,11 +175,11 @@
 			<button type="submit" class="btn btn-primary" on:click={submitComment}> Post comment </button>
 		</form>
 		{#each $productComments as comment, index (comment)}
-			<article class="p-6 mb-3 text-base bg-white rounded-lg dark:bg-gray-900 rounded-lg">
+			<article class="p-6 mb-3 text-base  rounded-lg">
 				<footer class="flex justify-between items-center mb-2">
 					<div class="flex items-center">
 						<p
-							class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white font-semibold"
+							class="inline-flex items-center mr-3 text-sm  font-semibold"
 						>
 							<img
 								class="mr-2 w-6 h-6 rounded-full"
@@ -194,7 +197,7 @@
 						<button
 							id={`dropdownComment${index}Button`}
 							data-dropdown-toggle={`dropdownComment${index}`}
-							class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 dark:text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+							class="inline-flex items-center p-2 text-sm font-medium text-center "
 							type="button"
 							on:click={() => toggleCommentDropdown(index)}
 						>
@@ -217,24 +220,24 @@
 							id={`dropdownComment${index}`}
 							class:hidden={!openCommentDropdowns[index]}
 							class:block={openCommentDropdowns[index]}
-							class="z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+							class="z-10 w-36 "
 							style="position: absolute; inset: 0px auto auto 0px; margin: 0px;"
 						>
 							<ul
-								class="py-1 text-sm text-gray-700 dark:text-gray-200"
+								class="py-1 text-sm"
 								aria-labelledby="dropdownMenuIconHorizontalButton"
 							>
 								<li>
 									<a
 										href="#"
-										class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+										class="block py-2 px-4 hover:bg-gray-100 "
 										>Edit</a
 									>
 								</li>
 								<li>
 									<a
 										href="#"
-										class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+										class="block py-2 px-4 hover:bg-gray-100 "
 										>Remove</a
 									>
 								</li>
@@ -242,7 +245,7 @@
 						</div>
 					{/if}
 				</footer>
-				<p class="text-gray-500 dark:text-gray-400">
+				<p class="">
 					{comment.content}
 				</p>
 				<div class="flex items-center mt-4 space-x-4">
@@ -332,11 +335,11 @@
 				{#each $productCommentReplies[index] as reply, index (reply)}
 					<!-- {#if $productReplies.find((e) => e.commentId === comment.id)?.commentReplies} -->
 					<!-- {#each $productReplies.find((e) => e.commentId === comment.id)?.commentReplies as reply, index (reply)} -->
-					<article class="p-6 mb-3 ml-6 lg:ml-12 text-base bg-white rounded-lg dark:bg-gray-900">
+					<article class="p-6 mb-3 ml-6 lg:ml-12 text-base">
 						<footer class="flex justify-between items-center mb-2">
 							<div class="flex items-center">
 								<p
-									class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white font-semibold"
+									class="inline-flex items-center mr-3 text-sm  font-semibold"
 								>
 									<img
 										class="mr-2 w-6 h-6 rounded-full"
@@ -354,7 +357,7 @@
 								<button
 									id={`dropdownReply${comment.id}${index}Button`}
 									data-dropdown-toggle={`dropdownReply${comment.id}${index}`}
-									class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 dark:text-gray-40 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+									class="inline-flex items-center p-2 text-sm font-medium text-center"
 									type="button"
 									on:click={() => toggleReplyDropdown(index, comment.id)}
 								>
@@ -376,24 +379,24 @@
 									id={`dropdownReply${comment.id}${index}`}
 									class:hidden={!openReplyDropdowns[index]}
 									class:block={openReplyDropdowns[index]}
-									class="z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+									class="z-10 w-36"
 									style="position: absolute; inset: 0px auto auto 0px; margin: 0px;"
 								>
 									<ul
-										class="py-1 text-sm text-gray-700 dark:text-gray-200"
+										class="py-1 text-sm"
 										aria-labelledby="dropdownMenuIconHorizontalButton"
 									>
 										<li>
 											<a
 												href="#"
-												class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+												class="block py-2 px-4 hover:bg-gray-100"
 												>Edit</a
 											>
 										</li>
 										<li>
 											<a
 												href="#"
-												class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+												class="block py-2 px-4 hover:bg-gray-100"
 												>Remove</a
 											>
 										</li>
@@ -401,7 +404,7 @@
 								</div>
 							{/if}
 						</footer>
-						<p class="text-gray-500 dark:text-gray-400">
+						<p class="">
 							{reply.content}
 						</p>
 						<div class="flex items-center mt-4 space-x-4">
@@ -465,7 +468,7 @@
 						/>Michael Gough
 					</p>
 					<p class="text-sm text-gray-600 dark:text-gray-400">
-						<time pubdate datetime="2022-02-08" title="February 8th, 2022">Feb. 8, 2022</time>
+						<time datetime="2022-02-08" title="February 8th, 2022">Feb. 8, 2022</time>
 					</p>
 				</div>
 				<button
