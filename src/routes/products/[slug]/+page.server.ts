@@ -46,8 +46,8 @@ export const load = (async ({ params, cookies }) => {
 				replies
 			};
 		} else return { error: 'Product not found' };
-	} catch (error) {
+	} catch (error : any) {
 		console.error('Error:', error);
-		return { error };
+		return { error : error.message };
 	}
 }) satisfies PageServerLoad;

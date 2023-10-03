@@ -109,7 +109,7 @@ export const getCurrentUserAvatar = async (baseUrl: string) => {
 		};
 		const response = await axios.get(currentUserAvatarUrl, options);
 		const image = response.data;
-		const imageUrl = `${gatewayBaseUrl}/${image.filename}`;
+		const imageUrl = `${image.filename}`;
 		return imageUrl;
 	} catch (error) {
 		console.error('Error fetching image:', error);
