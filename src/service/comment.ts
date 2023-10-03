@@ -319,3 +319,41 @@ export const deleteVote = async (baseUrl: string, token: string, voteId: number)
 		console.error('Failed to delete votes :', error);
 	}
 };
+
+export const checkCommentVote = async (
+	baseUrl: string,
+	token: string,
+	voteType: 'UP' | 'DOWN',
+	commentId: number | null
+) => {
+	try {
+		if (!token) {
+			throw Error('No token was provided. Failed to get vote');
+		}
+
+		const user = JSON.parse(Cookies.get('user') as string);
+
+		if (!user) {
+			throw Error('Failed to retreive logged user');
+		}
+
+		const commentBaseUrl = baseUrl;
+		const voteUrl = `${commentBaseUrl}/api/votes/?userEmail=${user.email}&commentId=${commentId}&voteType=${voteType}`;
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.get(voteUrl, options);
+		const votes = response.data;
+
+		if (votes.length === 1) {
+			return votes[0];
+		}
+		return false;
+	} catch (error) {
+		console.error('Failed to get votes :', error);
+		throw new Error(`Failed to get votes : ${error}`);
+	}
+};
