@@ -114,12 +114,12 @@
 		commentReplies.set(result);
 		// console.log('commentReplies is :', commentData.id, result);
 
-		const upVotes = await getCommentVotes(commentBaseUrl, token, 'UP', commentData.id);
-		const downVotes = await getCommentVotes(commentBaseUrl, token, 'DOWN', commentData.id);
+		const upVotes = await getCommentVotes(commentBaseUrl, token, 'UP', commentData.id, null);
+		const downVotes = await getCommentVotes(commentBaseUrl, token, 'DOWN', commentData.id, null);
 		commentUpVotes.set(upVotes);
 		commentDownVotes.set(downVotes);
-		const isUpVotes = await checkCommentVote(commentBaseUrl, token, 'UP', commentData.id);
-		const isDownVotes = await checkCommentVote(commentBaseUrl, token, 'DOWN', commentData.id);
+		const isUpVotes = await checkCommentVote(commentBaseUrl, token, 'UP', commentData.id, null);
+		const isDownVotes = await checkCommentVote(commentBaseUrl, token, 'DOWN', commentData.id, null);
 		isCommentUpVote.set(isUpVotes);
 		isCommentDownVote.set(isDownVotes);
 	});

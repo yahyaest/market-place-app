@@ -202,11 +202,17 @@ export const getCommentVotes = async (
 	baseUrl: string,
 	token: string,
 	voteType: 'UP' | 'DOWN',
-	commentId: number | null
+	commentId: number | null,
+	replyId: number | null
 ) => {
 	try {
 		const commentBaseUrl = baseUrl;
-		const voteUrl = `${commentBaseUrl}/api/votes/?commentId=${commentId}&voteType=${voteType}`;
+		let voteUrl = '';
+		if (commentId) {
+			voteUrl = `${commentBaseUrl}/api/votes/?commentId=${commentId}&voteType=${voteType}`;
+		} else {
+			voteUrl = `${commentBaseUrl}/api/votes/?replyId=${replyId}&voteType=${voteType}`;
+		}
 
 		if (!token) {
 			throw Error('No token was provided. Failed to get vote');
@@ -279,7 +285,7 @@ export const addVote = async (
 
 		const payload = {
 			userEmail: user.email,
-			username: user.username,
+			userName: user.username,
 			userId: user.id,
 			voteType,
 			commentId,
@@ -324,7 +330,8 @@ export const checkCommentVote = async (
 	baseUrl: string,
 	token: string,
 	voteType: 'UP' | 'DOWN',
-	commentId: number | null
+	commentId: number | null,
+	replyId: number | null
 ) => {
 	try {
 		if (!token) {
@@ -338,7 +345,12 @@ export const checkCommentVote = async (
 		}
 
 		const commentBaseUrl = baseUrl;
-		const voteUrl = `${commentBaseUrl}/api/votes/?userEmail=${user.email}&commentId=${commentId}&voteType=${voteType}`;
+		let voteUrl = '';
+		if (commentId) {
+			voteUrl = `${commentBaseUrl}/api/votes/?userEmail=${user.email}&commentId=${commentId}&voteType=${voteType}`;
+		} else {
+			voteUrl = `${commentBaseUrl}/api/votes/?userEmail=${user.email}&replyId=${replyId}&voteType=${voteType}`;
+		}
 
 		const options = {
 			headers: {
