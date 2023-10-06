@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 
@@ -47,7 +46,7 @@
 				<div class="flex flex-wrap justify-evenly">
 					{#each products as product, index (product)}
 						<div
-							class={`card w-96 glass mb-20  cursor-pointer ${
+							class={`card w-72 glass mb-20 cursor-pointer ${
 								!colorsBgCombinations[index].value
 									? colorsBgCombinations[index].value
 									: 'bg-teal-700'
@@ -63,7 +62,7 @@
 						>
 							<figure><img src={product.images ? product.images[0].url : ''} alt="" /></figure>
 							<div class="card-body">
-								<div class="text-center text-gray-700 font-extrabold text-lg">
+								<div class="text-center text-gray-700 font-extrabold text-base">
 									{product.title}
 									<div class="badge text-white bg-yellow-400 border-0 mx-5">
 										{product.price} TND
@@ -71,11 +70,11 @@
 								</div>
 								<div class="mt-1 mb-1 h-[1px] bg-black/25" />
 								<p>{product.category} / {product.subCategory}</p>
-								<p>
+								<p class="text-xs">
 									{product.country}
-									{'-->'}
+									{'->'}
 									{product.state}
-									{'-->'}
+									{'->'}
 									{product.city}, {formatRelativeTime(product.createdAt)}
 								</p>
 								<div class="card-actions justify-end" />
