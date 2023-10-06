@@ -15,7 +15,7 @@ export interface Product {
 	phone: string;
 	country: string;
 	state: string;
-	city: string | null;
+	city?: string | null;
 	images?: ProductImage[];
 	tags?: ProductTag[];
 }
