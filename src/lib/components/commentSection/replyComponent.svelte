@@ -5,6 +5,7 @@
 	import type { Vote } from '../../../models/vote';
 	import { addVote, checkCommentVote, deleteVote, getCommentVotes } from '../../../service/comment';
 	import { onMount } from 'svelte';
+	import { getToken } from '../../../service/gateway';
 
 	export let data: any;
 	export let replyData: Reply;
@@ -79,15 +80,24 @@
 	};
 
 	onMount(async () => {
-		const token = Cookies.get('token') as string;
+				// Get app token
+				const gatewayBaseUrl = data.gatewayBaseUrl as string;
+		const signinPayload = {
+			email: data.appEmail as string,
+			password: data.appPassword as string
+		};
+
+		const appToken = await getToken(gatewayBaseUrl, signinPayload.email, signinPayload.password);
+		//
+		// const token = Cookies.get('token') as string;
 		const commentBaseUrl = data.commentBaseUrl as string;
 
-		const upVotes = await getCommentVotes(commentBaseUrl, token, 'UP', null, replyData.id);
-		const downVotes = await getCommentVotes(commentBaseUrl, token, 'DOWN', null, replyData.id);
+		const upVotes = await getCommentVotes(commentBaseUrl, appToken, 'UP', null, replyData.id);
+		const downVotes = await getCommentVotes(commentBaseUrl, appToken, 'DOWN', null, replyData.id);
 		replyUpVotes.set(upVotes);
 		replyDownVotes.set(downVotes);
-		const isUpVotes = await checkCommentVote(commentBaseUrl, token, 'UP', null, replyData.id);
-		const isDownVotes = await checkCommentVote(commentBaseUrl, token, 'DOWN', null, replyData.id);
+		const isUpVotes = await checkCommentVote(commentBaseUrl, appToken, 'UP', null, replyData.id);
+		const isDownVotes = await checkCommentVote(commentBaseUrl, appToken, 'DOWN', null, replyData.id);
 		isReplyUpVote.set(isUpVotes);
 		isReplyDownVote.set(isDownVotes);
 	});

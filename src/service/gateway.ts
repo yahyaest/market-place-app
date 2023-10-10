@@ -35,6 +35,19 @@ export const logout = (baseUrl: string) => {
 	Cookies.remove('user');
 };
 
+export const getToken = async (baseUrl: string, email: string, password: string) => {
+	try {
+		const gatewayBaseUrl = baseUrl;
+		const signInUrl = `${gatewayBaseUrl}/api/auth/signin`;
+		const login = await axios.post(signInUrl, { email, password });
+		const token = login.data.access_token;
+		if (!token) return null;
+		return token;
+	} catch (error) {
+		console.error('Failed to get token:', error);
+	}
+};
+
 export const getCurrentUser = async (baseUrl: string,) => {
 	try {
 		const gatewayBaseUrl = baseUrl;

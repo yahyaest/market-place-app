@@ -2,7 +2,7 @@
 	import { writable, type Writable } from 'svelte/store';
 	import Cookies from 'js-cookie';
 	import type { Comment } from '../../../models/comment';
-	import { getCurrentUserAvatar } from '../../../service/gateway';
+	import { getCurrentUserAvatar, getToken } from '../../../service/gateway';
 	import {
 		addReply,
 		addVote,
@@ -105,21 +105,30 @@
 	};
 
 	onMount(async () => {
+		// Get app token
+		const gatewayBaseUrl = data.gatewayBaseUrl as string;
+		const signinPayload = {
+			email: data.appEmail as string,
+			password: data.appPassword as string
+		};
+
+		const appToken = await getToken(gatewayBaseUrl, signinPayload.email, signinPayload.password);
+		//
 		const token = Cookies.get('token') as string;
 		const commentBaseUrl = data.commentBaseUrl as string;
 
 		// console.log('commentData is :', commentData);
 
-		const result = await getCommentReplies(commentBaseUrl, token, commentData.id);
+		const result = await getCommentReplies(commentBaseUrl, appToken, commentData.id);
 		commentReplies.set(result);
 		// console.log('commentReplies is :', commentData.id, result);
 
-		const upVotes = await getCommentVotes(commentBaseUrl, token, 'UP', commentData.id, null);
-		const downVotes = await getCommentVotes(commentBaseUrl, token, 'DOWN', commentData.id, null);
+		const upVotes = await getCommentVotes(commentBaseUrl, appToken, 'UP', commentData.id, null);
+		const downVotes = await getCommentVotes(commentBaseUrl, appToken, 'DOWN', commentData.id, null);
 		commentUpVotes.set(upVotes);
 		commentDownVotes.set(downVotes);
-		const isUpVotes = await checkCommentVote(commentBaseUrl, token, 'UP', commentData.id, null);
-		const isDownVotes = await checkCommentVote(commentBaseUrl, token, 'DOWN', commentData.id, null);
+		const isUpVotes = await checkCommentVote(commentBaseUrl, appToken, 'UP', commentData.id, null);
+		const isDownVotes = await checkCommentVote(commentBaseUrl, appToken, 'DOWN', commentData.id, null);
 		isCommentUpVote.set(isUpVotes);
 		isCommentDownVote.set(isDownVotes);
 	});
