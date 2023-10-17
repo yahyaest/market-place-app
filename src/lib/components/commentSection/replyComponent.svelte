@@ -80,8 +80,8 @@
 	};
 
 	onMount(async () => {
-				// Get app token
-				const gatewayBaseUrl = data.gatewayBaseUrl as string;
+		// Get app token
+		const gatewayBaseUrl = data.gatewayBaseUrl as string;
 		const signinPayload = {
 			email: data.appEmail as string,
 			password: data.appPassword as string
@@ -97,7 +97,13 @@
 		replyUpVotes.set(upVotes);
 		replyDownVotes.set(downVotes);
 		const isUpVotes = await checkCommentVote(commentBaseUrl, appToken, 'UP', null, replyData.id);
-		const isDownVotes = await checkCommentVote(commentBaseUrl, appToken, 'DOWN', null, replyData.id);
+		const isDownVotes = await checkCommentVote(
+			commentBaseUrl,
+			appToken,
+			'DOWN',
+			null,
+			replyData.id
+		);
 		isReplyUpVote.set(isUpVotes);
 		isReplyDownVote.set(isDownVotes);
 	});
@@ -121,44 +127,46 @@
 				>
 			</p>
 		</div>
-		{#if replyData.userEmail === JSON.parse(Cookies.get('user')).email}
-			<button
-				id={`dropdownReply${replyData.id}Button`}
-				data-dropdown-toggle={`dropdownReply${replyData.id}`}
-				class="inline-flex items-center p-2 text-sm font-medium text-center"
-				type="button"
-				on:click={() => toggleCommentDropdown.set(!$toggleCommentDropdown)}
-			>
-				<svg
-					class="w-4 h-4"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="currentColor"
-					viewBox="0 0 16 3"
+		{#if Cookies.get('user')}
+			{#if replyData.userEmail === JSON.parse(Cookies.get('user')).email}
+				<button
+					id={`dropdownReply${replyData.id}Button`}
+					data-dropdown-toggle={`dropdownReply${replyData.id}`}
+					class="inline-flex items-center p-2 text-sm font-medium text-center"
+					type="button"
+					on:click={() => toggleCommentDropdown.set(!$toggleCommentDropdown)}
 				>
-					<path
-						d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
-					/>
-				</svg>
-				<span class="sr-only">Comment settings</span>
-			</button>
-			<!-- Dropdown menu -->
-			<div
-				id={`dropdownReply${replyData.id}`}
-				class:hidden={!$toggleCommentDropdown}
-				class:block={$toggleCommentDropdown}
-				class="z-10 w-36"
-				style="position: absolute; inset: 0px auto auto 0px; margin: 0px;"
-			>
-				<ul class="py-1 text-sm" aria-labelledby="dropdownMenuIconHorizontalButton">
-					<li>
-						<a href="#" class="block py-2 px-4 hover:bg-gray-100">Edit</a>
-					</li>
-					<li>
-						<a href="#" class="block py-2 px-4 hover:bg-gray-100">Remove</a>
-					</li>
-				</ul>
-			</div>
+					<svg
+						class="w-4 h-4"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="currentColor"
+						viewBox="0 0 16 3"
+					>
+						<path
+							d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
+						/>
+					</svg>
+					<span class="sr-only">Comment settings</span>
+				</button>
+				<!-- Dropdown menu -->
+				<div
+					id={`dropdownReply${replyData.id}`}
+					class:hidden={!$toggleCommentDropdown}
+					class:block={$toggleCommentDropdown}
+					class="z-10 w-36"
+					style="position: absolute; inset: 0px auto auto 0px; margin: 0px;"
+				>
+					<ul class="py-1 text-sm" aria-labelledby="dropdownMenuIconHorizontalButton">
+						<li>
+							<a href="#" class="block py-2 px-4 hover:bg-gray-100">Edit</a>
+						</li>
+						<li>
+							<a href="#" class="block py-2 px-4 hover:bg-gray-100">Remove</a>
+						</li>
+					</ul>
+				</div>
+			{/if}
 		{/if}
 	</footer>
 	<p class="">

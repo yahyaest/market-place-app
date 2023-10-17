@@ -338,6 +338,11 @@ export const checkCommentVote = async (
 			throw Error('No token was provided. Failed to get vote');
 		}
 
+		if (!Cookies.get('user')) {
+			console.warn('Failed to retreive logged user');
+			return
+		}
+
 		const user = JSON.parse(Cookies.get('user') as string);
 
 		if (!user) {

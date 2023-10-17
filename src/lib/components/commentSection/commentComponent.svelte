@@ -128,7 +128,13 @@
 		commentUpVotes.set(upVotes);
 		commentDownVotes.set(downVotes);
 		const isUpVotes = await checkCommentVote(commentBaseUrl, appToken, 'UP', commentData.id, null);
-		const isDownVotes = await checkCommentVote(commentBaseUrl, appToken, 'DOWN', commentData.id, null);
+		const isDownVotes = await checkCommentVote(
+			commentBaseUrl,
+			appToken,
+			'DOWN',
+			commentData.id,
+			null
+		);
 		isCommentUpVote.set(isUpVotes);
 		isCommentDownVote.set(isDownVotes);
 	});
@@ -152,45 +158,47 @@
 				>
 			</p>
 		</div>
-		{#if commentData.userEmail === JSON.parse(Cookies.get('user')).email}
-			<button
-				id={`dropdownComment${commentData.id}Button`}
-				data-dropdown-toggle={`dropdownComment${commentData.id}`}
-				class="inline-flex items-center p-2 text-sm font-medium text-center"
-				type="button"
-				on:click={() => toggleCommentDropdown.set(!$toggleCommentDropdown)}
-			>
-				<svg
-					class="w-4 h-4"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="currentColor"
-					viewBox="0 0 16 3"
+		{#if Cookies.get('user')}
+			{#if commentData.userEmail === JSON.parse(Cookies.get('user')).email}
+				<button
+					id={`dropdownComment${commentData.id}Button`}
+					data-dropdown-toggle={`dropdownComment${commentData.id}`}
+					class="inline-flex items-center p-2 text-sm font-medium text-center"
+					type="button"
+					on:click={() => toggleCommentDropdown.set(!$toggleCommentDropdown)}
 				>
-					<path
-						d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
-					/>
-				</svg>
-				<span class="sr-only">Comment settings</span>
-			</button>
+					<svg
+						class="w-4 h-4"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="currentColor"
+						viewBox="0 0 16 3"
+					>
+						<path
+							d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
+						/>
+					</svg>
+					<span class="sr-only">Comment settings</span>
+				</button>
 
-			<!-- Dropdown menu -->
-			<div
-				id={`dropdownComment${commentData.id}`}
-				class:hidden={!$toggleCommentDropdown}
-				class:block={$toggleCommentDropdown}
-				class="z-10 w-36"
-				style="position: absolute; inset: 0px auto auto 0px; margin: 0px;"
-			>
-				<ul class="py-1 text-sm" aria-labelledby="dropdownMenuIconHorizontalButton">
-					<li>
-						<a href="#" class="block py-2 px-4 hover:bg-gray-100">Edit</a>
-					</li>
-					<li>
-						<a href="#" class="block py-2 px-4 hover:bg-gray-100">Remove</a>
-					</li>
-				</ul>
-			</div>
+				<!-- Dropdown menu -->
+				<div
+					id={`dropdownComment${commentData.id}`}
+					class:hidden={!$toggleCommentDropdown}
+					class:block={$toggleCommentDropdown}
+					class="z-10 w-36"
+					style="position: absolute; inset: 0px auto auto 0px; margin: 0px;"
+				>
+					<ul class="py-1 text-sm" aria-labelledby="dropdownMenuIconHorizontalButton">
+						<li>
+							<a href="#" class="block py-2 px-4 hover:bg-gray-100">Edit</a>
+						</li>
+						<li>
+							<a href="#" class="block py-2 px-4 hover:bg-gray-100">Remove</a>
+						</li>
+					</ul>
+				</div>
+			{/if}
 		{/if}
 	</footer>
 	<p class="">
