@@ -7,9 +7,10 @@
 	import ProductTags from './productPage/productTags.svelte';
 	import { addThread } from '../../service/comment';
 	import Cookies from 'js-cookie';
+	import { goto } from '$app/navigation';
 
 	export let tags: Writable<string[]> = writable([]);
-	export let baseUrl = ''
+	export let baseUrl = '';
 
 	let title = '';
 	let username = '';
@@ -60,7 +61,14 @@
 	async function handleSubmit(event: MouseEvent) {
 		event.preventDefault();
 
-		const slug = title.replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+		const slug =
+			title
+				.replace(/[^\w\s-]/g, '')
+				.trim()
+				.toLowerCase()
+				.replace(/\s+/g, '_') +
+			'_' +
+			Date.now();
 
 		const productData = {
 			title,
@@ -81,8 +89,13 @@
 			const createdProduct = response.data.product;
 			await uploadImage(createdProduct);
 			await uploadTags(createdProduct);
-			const token = Cookies.get("token") as string;
-			await addThread(baseUrl, token, slug)
+			const token = Cookies.get('token') as string;
+			if (!token) {
+				// TODO: Redirect instead to auth page
+				return alert('Need to login');
+			}
+
+			await addThread(baseUrl, token, slug);
 
 			if (response.status === 201) {
 				// Product created successfully, you can handle this case
@@ -90,6 +103,7 @@
 				// Toast
 
 				// Rdirect
+				goto(`/products/${slug}`)
 			} else {
 				// Handle errors here if needed
 				console.error('Failed to create product');
@@ -100,83 +114,82 @@
 	}
 </script>
 
+<div class="space-y-12 mx-auto w-4/5 sm:w-1/2">
+	<div>
+		<label for="title" class="block text-sm font-medium text-gray-700"> Title </label>
+		<input
+			type="text"
+			id="title"
+			name="title"
+			class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+			bind:value={title}
+		/>
+	</div>
 
-	<div class="space-y-12 mx-auto w-4/5 sm:w-1/2">
-		<div>
-			<label for="title" class="block text-sm font-medium text-gray-700"> Title </label>
-			<input
-				type="text"
-				id="title"
-				name="title"
-				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-				bind:value={title}
-			/>
-		</div>
+	<div>
+		<label for="username" class="block text-sm font-medium text-gray-700"> Username </label>
+		<input
+			type="text"
+			id="username"
+			name="username"
+			class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+			bind:value={username}
+		/>
+	</div>
 
-		<div>
-			<label for="username" class="block text-sm font-medium text-gray-700"> Username </label>
-			<input
-				type="text"
-				id="username"
-				name="username"
-				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-				bind:value={username}
-			/>
-		</div>
+	<div>
+		<label for="price" class="block text-sm font-medium text-gray-700"> Price </label>
+		<input
+			type="number"
+			id="price"
+			name="price"
+			class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+			bind:value={price}
+		/>
+	</div>
 
-		<div>
-			<label for="price" class="block text-sm font-medium text-gray-700"> Price </label>
+	<ProductCategory bind:category bind:subCategory />
+	<div>
+		<label for="description" class="block text-sm font-medium text-gray-700"> Description </label>
+		<textarea
+			id="description"
+			name="description"
+			class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+			bind:value={description}
+		/>
+	</div>
+
+	<ProductLocation bind:country bind:state bind:city />
+
+	<div class="form-control">
+		<label class="label">
+			<span class="label-text">Phone</span>
+		</label>
+		<label class="input-group">
+			<span>+</span>
 			<input
 				type="number"
-				id="price"
-				name="price"
-				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-				bind:value={price}
+				placeholder="216"
+				min="0"
+				max="999"
+				class="input input-bordered w-20"
+				bind:value={areacode}
 			/>
-		</div>
-
-		<ProductCategory bind:category bind:subCategory />
-		<div>
-			<label for="description" class="block text-sm font-medium text-gray-700"> Description </label>
-			<textarea
-				id="description"
-				name="description"
-				class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-				bind:value={description}
+			<input
+				type="number"
+				placeholder="55 555 555"
+				min="0"
+				max="99999999"
+				class="input input-bordered"
+				bind:value={phoneNumber}
 			/>
-		</div>
-
-		<ProductLocation bind:country bind:state bind:city />
-
-		<div class="form-control">
-			<label class="label">
-				<span class="label-text">Phone</span>
-			</label>
-			<label class="input-group">
-				<span>+</span>
-				<input
-					type="number"
-					placeholder="216"
-					min="0"
-					max="999"
-					class="input input-bordered w-20"
-					bind:value={areacode}
-				/>
-				<input
-					type="number"
-					placeholder="55 555 555"
-					min="0"
-					max="99999999"
-					class="input input-bordered"
-					bind:value={phoneNumber}
-				/>
-			</label>
-		</div>
-
-		<UploadProductImages bind:file bind:files />
-
-		<ProductTags bind:tags />
-		<div>
-			<button class="btn btn-primary p-2" on:click={(e) => handleSubmit(e)}> Add Product </button>
-		</div>
+		</label>
 	</div>
+
+	<UploadProductImages bind:file bind:files />
+
+	<ProductTags bind:tags />
+	<div>
+		<button class="btn btn-primary p-2" on:click={(e) => handleSubmit(e)}> Add Product </button>
+	</div>
+</div>
