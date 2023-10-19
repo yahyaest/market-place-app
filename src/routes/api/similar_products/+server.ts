@@ -69,13 +69,11 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 			) as any;
 			productsSearchList = productsSearchList.sort((b,a)=> b.index - a.index);
 
-			// 
+			// Return search result
    const productsSearchResult:  Product [] = [];
 			for (const element of productsSearchList) {
 				productsSearchResult.push(element.data);
 			}
-
-			
 		return json({ products: productsSearchResult }, { status: 200 });
 	} catch (err) {
 		console.error(err);

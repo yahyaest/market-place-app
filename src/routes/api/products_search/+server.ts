@@ -23,7 +23,8 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 		console.log('queryParams is ', queryParams);
 
 		// If there are query parameters, retrieve a product by query
-		let productsSearchList: Product[] = [];
+		let productsSearchList: { index: number; data: Product }[] = [];
+		let index = 0;
 		if (queryParams['search_query']) {
 			// Search products by title
 			const productsByTitle: Product[] = await prisma.product.findMany({
@@ -31,7 +32,8 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 			});
 
 			for (const product of productsByTitle) {
-				productsSearchList.push(product);
+				productsSearchList.push({ index, data: product });
+				index++;
 			}
 			// Search products by Tags
 			const tags: Tag[] = await prisma.tag.findMany({
@@ -42,42 +44,58 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 				const productTag: Product | null = await prisma.product.findUnique({
 					where: { id: tag.productId as number }
 				});
-				productsSearchList.push(productTag as Product);
+				productsSearchList.push({ index, data: productTag as Product });
+				index++;
 			}
 
-            // Search products by description
+			// Search products by description
 			const productsByDescription: Product[] = await prisma.product.findMany({
 				where: { description: { contains: queryParams['search_query'], mode: 'insensitive' } }
 			});
 
 			for (const product of productsByDescription) {
-				productsSearchList.push(product);
+				productsSearchList.push({ index, data: product });
+				index++;
 			}
 
-            // Search products by category and subCategory
+			// Search products by category and subCategory
 			const productsByCategory: Product[] = await prisma.product.findMany({
 				where: { category: { contains: queryParams['search_query'], mode: 'insensitive' } }
 			});
 
 			for (const product of productsByCategory) {
-				productsSearchList.push(product);
+				productsSearchList.push({ index, data: product });
+				index++;
 			}
 
-            const productsBySubCategory: Product[] = await prisma.product.findMany({
+			const productsBySubCategory: Product[] = await prisma.product.findMany({
 				where: { subCategory: { contains: queryParams['search_query'], mode: 'insensitive' } }
 			});
 
 			for (const product of productsBySubCategory) {
-				productsSearchList.push(product);
+				productsSearchList.push({ index, data: product });
+				index++;
 			}
 		}
+
+		// Sort and remove duplicate products of productsSearchList
+		productsSearchList = productsSearchList.sort((b, a) => a.index - b.index);
+
 		productsSearchList = Object.values(
 			productsSearchList.reduce((uniqueObject: Product, item) => {
-				(uniqueObject as any)[item.id] = item;
+				(uniqueObject as any)[item.data.id] = item;
 				return uniqueObject;
 			}, {} as Product)
 		) as any;
-		return json({ products: productsSearchList }, { status: 200 });
+
+		productsSearchList = productsSearchList.sort((b, a) => b.index - a.index);
+
+		// Return search result
+		const productsSearchResult: Product[] = [];
+		for (const element of productsSearchList) {
+			productsSearchResult.push(element.data);
+		}
+		return json({ products: productsSearchResult }, { status: 200 });
 	} catch (err) {
 		console.error(err);
 		throw error(404, { message: err as string });
