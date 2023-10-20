@@ -3,6 +3,8 @@ import prisma from '$lib/prisma';
 import { getCommentReplies, getThreadByName, getThreadComments } from '../../../service/comment';
 import type { Reply } from '../../../models/reply';
 import { getToken } from '../../../service/gateway';
+import type { Product } from '@prisma/client';
+import axios from 'axios';
 
 export const load = (async ({ params, cookies }) => {
 	const { slug } = params;
@@ -28,6 +30,7 @@ export const load = (async ({ params, cookies }) => {
 	try {
 		const commentBaseUrl = process.env.COMMENT_BASE_URL as string;
 		const gatewayBaseUrl = process.env.GATEWAY_BASE_URL as string;
+		const frontBaseUrl = process.env.FRONT_BASE_URL as string;
 		// Get app token
 		const signinPayload = {
 			email: process.env.MARKETPLACE_USERNAME as string,
@@ -41,6 +44,20 @@ export const load = (async ({ params, cookies }) => {
 		if (product) {
 			const productImages = await prisma.image.findMany({ where: { productId: product?.id } });
 			const productTags = await prisma.tag.findMany({ where: { productId: product?.id } });
+			//get similar products
+			const result = await axios.get(
+				`${frontBaseUrl}/api/similar_products/?category=${product.category}&subCategory=${product.subCategory}`
+			);
+			let similarProducts = result.data.products;
+			for (const element of similarProducts) {
+				const elementImages = await prisma.image.findMany({ where: { productId: element?.id } });
+				const elementTags = await prisma.tag.findMany({ where: { productId: element?.id } });
+				element.images = elementImages;
+				element.tags = elementTags;
+			}
+			// remove current product
+			similarProducts = similarProducts.filter((element: any) => element.id !== product.id);
+
 			//get comment data
 			const comments = await getProductComments(commentBaseUrl, appToken, product);
 			const replies = await getProductReplies(commentBaseUrl, appToken, product);
@@ -53,6 +70,7 @@ export const load = (async ({ params, cookies }) => {
 				product,
 				productImages,
 				productTags,
+				similarProducts,
 				comments,
 				replies
 			};

@@ -8,8 +8,6 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 		const url = new URL(request.url);
 		const searchParams = url.searchParams;
 
-		console.log('searchParams is ', searchParams);
-
 		// Transform URLSearchParams into a key-value object
 		const queryParams: any = {};
 		for (const [key, value] of searchParams.entries()) {
@@ -24,8 +22,6 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 				message: 'Products not found, queryParams should include category or subCategory'
 			});
 		}
-
-		console.log('queryParams is ', queryParams);
 
 		// If there are query parameters, retrieve a product by query
 		let productsSearchList: { index: number; data: Product }[] = [];

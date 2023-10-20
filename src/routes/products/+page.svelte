@@ -60,7 +60,7 @@
 							}}
 							tabindex="0"
 						>
-							<figure><img src={product.images ? product.images[0].url : ''} alt="" /></figure>
+							<figure><img class="w-72 h-72" src={product.images ? product.images[0].url : ''} alt="" /></figure>
 							<div class="card-body">
 								<div class="text-center text-gray-700 font-extrabold text-base">
 									{product.title}
