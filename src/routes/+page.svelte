@@ -3,17 +3,22 @@
 
 	export let data;
 
- let userImage : string | null | undefined = null
+	let userImage: string | null | undefined = null;
+	const gatewayBaseUrl = data.gatewayBaseUrl;
 
 	const getUserAvatar = async () => {
 		if (data.user) {
-			 userImage = await getCurrentUserAvatar(data.gatewayBaseUrl as string);
+			userImage = await getCurrentUserAvatar(gatewayBaseUrl as string);
 		}
 	};
- getUserAvatar()
+	getUserAvatar();
 </script>
 
 <h1>Welcome {data.user ? data.user.username : 'user'}</h1>
 {#if userImage}
-<img src={userImage} alt={userImage} style="width: 50px; height: 50px; border-radius: 50%;">
+	<img
+		src={`${gatewayBaseUrl}/${userImage}`}
+		alt={userImage}
+		style="width: 50px; height: 50px; border-radius: 50%;"
+	/>
 {/if}
