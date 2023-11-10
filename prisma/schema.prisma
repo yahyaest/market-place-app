@@ -27,6 +27,7 @@ model Product {
   city        String?
   images      Image[]
   tags        Tag[]
+  offers      Offer[]
 
   @@unique([title, username])
   @@unique([slug])
@@ -54,6 +55,25 @@ model Tag {
   productId    Int?
   name         String
 
-    @@unique([name, productId])
+  @@unique([name, productId])
+}
 
+model Offer {
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  username     String
+  productTitle String
+  productOwner String
+  product      Product?    @relation(fields: [productId], references: [id])
+  productId    Int?
+  status       OfferStatus @default(PENDING)
+
+  @@unique([username, productId])
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
