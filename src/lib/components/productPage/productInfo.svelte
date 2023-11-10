@@ -72,6 +72,22 @@
 				{/each}
 			{/if}
 		</div>
+
+		<button class="btn" onclick="my_modal_3.showModal()">Make Offer</button>
+<dialog id="my_modal_3" class="modal">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <h3 class="font-bold text-lg">{product.title}</h3>
+				<div>
+					
+					<p class="py-4">Set your offer</p>
+					<input type="number" placeholder={product.price} min="0" max={product.price} class="input input-bordered input-primary w-full max-w-xs mb-3" />
+				</div>
+				<button class="btn btn-sm align-middle">Submit</button>
+  </div>
+</dialog>
 	</div>
 </div>
 
