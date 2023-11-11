@@ -67,6 +67,7 @@ model Offer {
   productOwner String
   product      Product?    @relation(fields: [productId], references: [id])
   productId    Int?
+  amount       Int
   status       OfferStatus @default(PENDING)
 
   @@unique([username, productId])
