@@ -3,11 +3,11 @@ import prisma from '$lib/prisma';
 import { getCommentReplies, getThreadByName, getThreadComments } from '../../../service/comment';
 import type { Reply } from '../../../models/reply';
 import { getToken } from '../../../service/gateway';
-import type { Product } from '@prisma/client';
 import axios from 'axios';
 
 export const load = (async ({ params, cookies }) => {
 	const { slug } = params;
+	const user  =JSON.parse(cookies.get('user') as string)
 
 	const getProductComments = async (commentBaseUrl: string, token: string, product: any) => {
 		// const token = cookies.get('token') as string;
@@ -30,6 +30,7 @@ export const load = (async ({ params, cookies }) => {
 	try {
 		const commentBaseUrl = process.env.COMMENT_BASE_URL as string;
 		const gatewayBaseUrl = process.env.GATEWAY_BASE_URL as string;
+		const notificationBaseUrl = process.env.NOTIFICATION_BASE_URL as string
 		const frontBaseUrl = process.env.FRONT_BASE_URL as string;
 		// Get app token
 		const signinPayload = {
@@ -64,6 +65,7 @@ export const load = (async ({ params, cookies }) => {
 
 			return {
 				commentBaseUrl,
+				notificationBaseUrl,
 				gatewayBaseUrl,
 				appEmail: process.env.MARKETPLACE_USERNAME,
 				appPassword: process.env.MARKETPLACE_PASSWORD,
@@ -72,7 +74,8 @@ export const load = (async ({ params, cookies }) => {
 				productTags,
 				similarProducts,
 				comments,
-				replies
+				replies,
+				user: user ? user : null
 			};
 		} else return { error: 'Product not found' };
 	} catch (error: any) {
