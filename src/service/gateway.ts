@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import type { AddUser, User } from '../models/user';
 
-export const register = async (baseUrl: string, payload:AddUser) => {
+export const register = async (baseUrl: string, payload: AddUser) => {
 	try {
 		const gatewayBaseUrl = baseUrl;
 		const signUpUrl = `${gatewayBaseUrl}/api/auth/signup`;
@@ -48,7 +48,7 @@ export const getToken = async (baseUrl: string, email: string, password: string)
 	}
 };
 
-export const getCurrentUser = async (baseUrl: string,) => {
+export const getCurrentUser = async (baseUrl: string) => {
 	try {
 		const gatewayBaseUrl = baseUrl;
 		const currentUserUrl = `${gatewayBaseUrl}/api/users/me`;
@@ -66,6 +66,28 @@ export const getCurrentUser = async (baseUrl: string,) => {
 		return user as User;
 	} catch (error) {
 		console.error('Error fetching current user:', error);
+	}
+};
+
+export const getUserByEmail = async (baseUrl: string, email: string, token: string) => {
+	try {
+		// Token need to be of admin user
+		const gatewayBaseUrl = baseUrl;
+		const currentUserUrl = `${gatewayBaseUrl}/api/users/?email=${email}`;
+		if (!token) {
+			throw Error('No token was provided. Failed to get current user data');
+		}
+		const options: any = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.get(currentUserUrl, options);
+		const user = response.data[0];
+		return user as User;
+	} catch (error) {
+		console.error('Error fetching current user:', error);
+		alert(error)
 	}
 };
 
@@ -112,6 +134,28 @@ export const getCurrentUserAvatar = async (baseUrl: string) => {
 		const gatewayBaseUrl = baseUrl;
 		const currentUserAvatarUrl = `${gatewayBaseUrl}/api/images/me`;
 		const token = Cookies.get('token');
+		if (!token) {
+			throw Error('No token was provided. Failed to get current user data');
+		}
+		const options: any = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.get(currentUserAvatarUrl, options);
+		const image = response.data;
+		const imageUrl = `${image.filename}`;
+		return imageUrl;
+	} catch (error) {
+		console.error('Error fetching image:', error);
+	}
+};
+
+export const getUserAvatar = async (baseUrl: string, username: string, token: string) => {
+	// Token need to be of admin user
+	try {
+		const gatewayBaseUrl = baseUrl;
+		const currentUserAvatarUrl = `${gatewayBaseUrl}/api/images/?username=${username}`;
 		if (!token) {
 			throw Error('No token was provided. Failed to get current user data');
 		}
