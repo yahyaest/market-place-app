@@ -171,7 +171,7 @@ export const getUserAvatar = async (baseUrl: string, username: string, token: st
 		};
 		const response = await axios.get(currentUserAvatarUrl, options);
 		const image = response.data;
-		const imageUrl = `${image.filename}`;
+		const imageUrl = `${image[0].filename}`;
 		return imageUrl;
 	} catch (error) {
 		console.error('Error fetching image:', error);
