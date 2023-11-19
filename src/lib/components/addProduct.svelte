@@ -8,12 +8,14 @@
 	import { addThread } from '../../service/comment';
 	import Cookies from 'js-cookie';
 	import { goto } from '$app/navigation';
+	import type { User } from '../../models/user';
 
 	export let tags: Writable<string[]> = writable([]);
 	export let baseUrl = '';
 
+	const user :User = JSON.parse(Cookies.get('user') as string);
+
 	let title = '';
-	let username = '';
 	let price = '';
 	let category = '';
 	let subCategory = '';
@@ -30,7 +32,7 @@
 		for (const file of files) {
 			const formData = new FormData();
 			formData.append('file', file);
-			formData.append('username', 'username');
+			formData.append('username', user.email);
 			formData.append('productTitle', product.title);
 			formData.append('productId', product.id);
 			formData.append('name', file.name);
@@ -47,7 +49,7 @@
 			try {
 				const payload = {
 					name: tag,
-					username: 'username',
+					username: user.email,
 					productTitle: product.title,
 					productId: product.id
 				};
@@ -73,7 +75,7 @@
 		const productData = {
 			title,
 			slug,
-			username,
+			username : user.email,
 			price: parseInt(price), // Convert price to a number
 			category,
 			subCategory,
@@ -126,16 +128,6 @@
 		/>
 	</div>
 
-	<div>
-		<label for="username" class="block text-sm font-medium text-gray-700"> Username </label>
-		<input
-			type="text"
-			id="username"
-			name="username"
-			class="mt-1 p-2 block w-full border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-			bind:value={username}
-		/>
-	</div>
 
 	<div>
 		<label for="price" class="block text-sm font-medium text-gray-700"> Price </label>
