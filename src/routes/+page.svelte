@@ -8,7 +8,7 @@
 
 	const getUserAvatar = async () => {
 		if (data.user) {
-			userImage = await getCurrentUserAvatar(gatewayBaseUrl as string);
+			userImage = await getCurrentUserAvatar(gatewayBaseUrl as string, data.token);
 		}
 	};
 	getUserAvatar();

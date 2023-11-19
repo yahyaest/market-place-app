@@ -6,15 +6,8 @@
 
 	export let data;
 
-	let userImage: string | null | undefined = null;
+	const  userImage = data.userImage;
 	const gatewayBaseUrl = data.gatewayBaseUrl;
-
-	const getUserAvatar = async () => {
-		if (data.user) {
-			userImage = await getCurrentUserAvatar(gatewayBaseUrl as string);
-		}
-	};
-	getUserAvatar();
 
 	// NOTE: the element that is using one of the theme attributes must be in the DOM on mount
 	onMount(() => {
@@ -119,7 +112,7 @@
 					<ul
 						class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-96"
 					>
-					<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
+						<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
 						<li>
 							<div class="flex flex-row justify-between">
 								<img

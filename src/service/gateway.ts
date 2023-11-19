@@ -87,7 +87,7 @@ export const getUserByEmail = async (baseUrl: string, email: string, token: stri
 		return user as User;
 	} catch (error) {
 		console.error('Error fetching current user:', error);
-		alert(error)
+		alert(error);
 	}
 };
 
@@ -129,13 +129,18 @@ export const uploadImage = async (baseUrl: string, file: string, username: strin
 	}
 };
 
-export const getCurrentUserAvatar = async (baseUrl: string) => {
+export const getCurrentUserAvatar = async (baseUrl: string, userToken = null) => {
 	try {
 		const gatewayBaseUrl = baseUrl;
 		const currentUserAvatarUrl = `${gatewayBaseUrl}/api/images/me`;
-		const token = Cookies.get('token');
-		if (!token) {
-			throw Error('No token was provided. Failed to get current user data');
+		let token;
+		if (userToken === null) {
+		token = Cookies.get('token');
+			if (!token) {
+				throw Error('No token was provided. Failed to get current user data');
+			}
+		} else {
+		token = userToken;
 		}
 		const options: any = {
 			headers: {
