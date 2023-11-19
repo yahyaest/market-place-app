@@ -4,6 +4,7 @@ import type { PageServerLoad } from './$types';
 
 export const load = (async ({ cookies }) => {
 	const gatewayBaseUrl = process.env.GATEWAY_BASE_URL as string;
+	const notificationBaseUrl = process.env.NOTIFICATION_BASE_URL as string;
 	const signinPayload = {
 		email: process.env.MARKETPLACE_USERNAME as string,
 		password: process.env.MARKETPLACE_PASSWORD as string
@@ -27,13 +28,18 @@ export const load = (async ({ cookies }) => {
 					where: { productId: offer.productId }
 				});
 				const productOwnerUser = await getUserByEmail(gatewayBaseUrl, offer.productOwner, appToken);
-				const productOwnerImage = await getUserAvatar(gatewayBaseUrl, productOwnerUser?.email as string ,appToken)
-				
+				const productOwnerImage = await getUserAvatar(
+					gatewayBaseUrl,
+					productOwnerUser?.email as string,
+					appToken
+				);
+
 				const userOffer: any = offer;
 				userOffer.image = productImages[0].url;
 				userOffer.productCategory = offerProduct?.category;
-				userOffer.productOwnerUsername = productOwnerUser?.username
-				userOffer.productOwnerImage = productOwnerImage
+				userOffer.productOwnerUsername = productOwnerUser?.username;
+				userOffer.productOwnerImage = productOwnerImage;
+				userOffer.productPrice = offerProduct?.price;
 				userOffers.push(userOffer);
 			}
 			return userOffers;
@@ -42,7 +48,13 @@ export const load = (async ({ cookies }) => {
 
 	try {
 		const userOffers = getUserOffers();
-		return {gatewayBaseUrl, userOffers };
+		return {
+			gatewayBaseUrl,
+			notificationBaseUrl,
+			appEmail: process.env.MARKETPLACE_USERNAME,
+			appPassword: process.env.MARKETPLACE_PASSWORD,
+			userOffers
+		};
 	} catch (error: any) {
 		console.error('Error:', error);
 		return { error: error.message };

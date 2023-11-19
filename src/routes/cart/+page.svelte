@@ -1,8 +1,9 @@
 <script lang="ts">
+	import ProductOffer from '$lib/components/productPage/productOffer.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-    const gatewayBaseUrl = data.gatewayBaseUrl
+	const gatewayBaseUrl = data.gatewayBaseUrl;
 	const userOffers = data.userOffers;
 </script>
 
@@ -13,7 +14,7 @@
 			<thead>
 				<tr>
 					<th />
-                    <th>Product</th>
+					<th>Product</th>
 					<th>Owner</th>
 					<th>Offer</th>
 					<th>Status</th>
@@ -22,7 +23,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each userOffers as offer}
+				{#each userOffers as offer (offer.id)}
 					<tr>
 						<th>
 							<label>
@@ -38,16 +39,20 @@
 								</div>
 								<div>
 									<div class="font-bold">{offer.productTitle}</div>
-									<div class="badge badge-ghost badge-sm">{offer.productCategory}</div>
+									<div class="badge badge-ghost badge-sm mx-1">{offer.productCategory}</div>
+                                    <div class="badge badge-ghost badge-sm mx-1">{offer.productPrice} TND</div>
 								</div>
 							</div>
 						</td>
 
-                        <td>
+						<td>
 							<div class="flex items-center gap-3">
 								<div class="avatar">
 									<div class="mask mask-squircle w-12 h-12">
-										<img src={`${gatewayBaseUrl}/${offer.productOwnerImage}`} alt={`${offer.productOwnerUsername}`} />
+										<img
+											src={`${gatewayBaseUrl}/${offer.productOwnerImage}`}
+											alt={`${offer.productOwnerUsername}`}
+										/>
 									</div>
 								</div>
 								<div>
@@ -71,7 +76,15 @@
 							</td>
 						{/if}
 						<th>
-							<button class="btn btn-warning btn-xs">Update</button>
+                            <div>
+                                <ProductOffer
+                                    bind:data
+                                    productTitle={offer.productTitle}
+                                    productPrice={offer.productPrice}
+                                    offer={offer}
+                                    pageSource={"CartPage"}
+                                />
+                            </div>
 						</th>
 						<th>
 							<button class="btn btn-error btn-xs">Delete</button>
