@@ -47,7 +47,7 @@ export const addProductOwnerNotification = async (
 		}
 
 		const productOwnerUser = await getUserByEmail(gatewayBaseUrl, productOwner, appToken);
-  const productOwnerImage = await getUserAvatar(gatewayBaseUrl, productOwnerUser?.email as string ,appToken)
+  // const productOwnerImage = await getUserAvatar(gatewayBaseUrl, productOwnerUser?.email as string ,appToken)
 
   // Post notification
 		const options = {
@@ -59,7 +59,7 @@ export const addProductOwnerNotification = async (
   const payload = {
    userEmail: productOwnerUser?.email,
    username: productOwnerUser?.username,
-   userImage: productOwnerImage,
+   userImage: data.userImage,
    userId: productOwnerUser?.id,
    title: data.title,
    message: data.message,

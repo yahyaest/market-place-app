@@ -1,17 +1,20 @@
 <script lang="ts">
 	import axios from 'axios';
-	import type { Product } from '../../../models/product';
-	import type { User } from '../../../models/user';
+	import Cookies from 'js-cookie';
 	import { getCurrentUserAvatar } from '../../../service/gateway';
 	import { addProductOwnerNotification, addUserNotification } from '../../../service/notification';
-	import Cookies from 'js-cookie';
+	import type { Product } from '../../../models/product';
+	import type { User } from '../../../models/user';
+	import type { Offer } from '../../../models/offer';
 
 	export let data: any;
 	const user: User = data.user;
 	const product: Product = data.product;
 	const productImages = data.productImages;
 	const productTags = data.productTags;
-	let offerAmount = 0;
+	const productOwner = data.productOwner
+	const offer: Offer = data.offer;
+	let offerAmount = offer ? offer.amount : 0;
 
 	const tagSeverity = [
 		'badge-info',
@@ -36,17 +39,21 @@
 			return alert('You need to login to make an offer');
 		}
 		try {
-			const offerPayload = {
-				username: user.email,
-				productTitle: product.title,
-				productOwner: product.username,
-				productId: product.id,
-				status: 'PENDING',
-				amount: offerAmount
-			};
-			const offer = await axios.post('/api/offers', offerPayload);
-			console.log(offer.status)
-			if (offer.data && offer.status === 201) {
+			let offerResponse;
+			if (offer) {
+				offerResponse = await axios.patch(`/api/offers/${offer.id}`, { amount: offerAmount });
+			} else {
+				const offerPayload = {
+					username: user.email,
+					productTitle: product.title,
+					productOwner: product.username,
+					productId: product.id,
+					status: 'PENDING',
+					amount: offerAmount
+				};
+				offerResponse = await axios.post('/api/offers', offerPayload);
+			}
+			if (offerResponse.data && offerResponse.status === 200 || 201) {
 				// Post User Notification
 				const notificationBaseUrl = data.notificationBaseUrl;
 				const token = Cookies.get('token') as string;
@@ -57,7 +64,9 @@
 					userImage,
 					userId: user.id,
 					title: 'Make Product Offer',
-					message: `You sent an offer to ${product.username} for product ${product.title} with amount of ${offerAmount} TND`,
+					message: offer
+						? `You updated your offer to ${productOwner} for product ${product.title} with amount from ${offer.amount} to ${offerAmount} TND`
+						: `You sent an offer to ${productOwner} for product ${product.title} with amount of ${offerAmount} TND`,
 					seen: false
 				};
 
@@ -71,7 +80,10 @@
 				};
 				const productOwnerNotificationPayload = {
 					title: 'Make Product Offer',
-					message: `You get an offer from ${user.username} for product ${product.title} with amount of ${offerAmount} TND`
+					userImage,
+					message: offer
+						? `${user.username} has changed his offer for product ${product.title} with amount from ${offer.amount} to ${offerAmount} TND`
+						: `You get an offer from ${user.username} for product ${product.title} with amount of ${offerAmount} TND`
 				};
 
 				await addProductOwnerNotification(
@@ -85,9 +97,9 @@
 					`Offer for product ${product.title} with ${offerAmount} has been created successfully`
 				);
 			}
-		} catch (error : any) {
+		} catch (error: any) {
 			console.error('Error:', error);
-			alert(error.response.data.message.body.message)
+			alert(error.response.data.message.body.message);
 		}
 	};
 </script>
@@ -151,7 +163,9 @@
 		</div>
 
 		{#if product.username !== user.email}
-			<button class="btn" onclick="my_modal_3.showModal()">Make Offer</button>
+			<button class="btn" onclick="my_modal_3.showModal()"
+				>{offer ? 'Change Offer' : 'Make Offer'}</button
+			>
 			<dialog id="my_modal_3" class="modal">
 				<div class="modal-box">
 					<form method="dialog">
@@ -159,10 +173,10 @@
 					</form>
 					<h3 class="font-bold text-lg">{product.title}</h3>
 					<div>
-						<p class="py-4">Set your offer</p>
+						<p class="py-4">{offer ? 'Update your offer' : 'Set your offer'}</p>
 						<input
 							type="number"
-							placeholder={product.price}
+							placeholder={`${product.price}`}
 							min="0"
 							max={product.price}
 							bind:value={offerAmount}
