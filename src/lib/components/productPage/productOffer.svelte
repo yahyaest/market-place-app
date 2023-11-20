@@ -12,12 +12,21 @@
 	export let productPrice: number;
 	export let pageSource: string;
 
-
 	const user: User = data.user;
 	const product: Product = data.product;
 	const productOwner = data.productOwner;
+	let showToast: boolean = false;
+	let toastMessage: string = '';
+	let offerAction: string = '';
 
 	let offerAmount = offer ? offer.amount : 0;
+
+	const closeDialog = () => {
+		const modal = document.getElementById(`my_modal_${offer ? offer.id : 0}`);
+		if (modal) {
+			modal.close();
+		}
+	};
 
 	const getUserAvatar = async () => {
 		if (user) {
@@ -34,6 +43,7 @@
 			let offerResponse;
 			if (offer) {
 				offerResponse = await axios.patch(`/api/offers/${offer.id}`, { amount: offerAmount });
+				offerAction = 'UPDATE';
 			} else {
 				const offerPayload = {
 					username: user.email,
@@ -44,6 +54,7 @@
 					amount: offerAmount
 				};
 				offerResponse = await axios.post('/api/offers', offerPayload);
+				offerAction = 'CREATE';
 			}
 			if (offerResponse.data && (offerResponse.status === 200 || 201)) {
 				// Post User Notification
@@ -57,8 +68,12 @@
 					userId: user.id,
 					title: 'Make Product Offer',
 					message: offer
-						? `You updated your offer to ${productOwner ? productOwner : offer.productOwnerUsername} for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
-						: `You sent an offer to ${productOwner ? productOwner : offer.productOwnerUsername} for product ${productTitle} with amount of ${offerAmount} TND`,
+						? `You updated your offer to ${
+								productOwner ? productOwner : offer.productOwnerUsername
+						  } for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
+						: `You sent an offer to ${
+								productOwner ? productOwner : offer.productOwnerUsername
+						  } for product ${productTitle} with amount of ${offerAmount} TND`,
 					seen: false
 				};
 
@@ -85,9 +100,19 @@
 					product ? product.username : offer.productOwner,
 					productOwnerNotificationPayload
 				);
-				alert(
-					`Offer for product ${productTitle} with ${offerAmount} has been created successfully`
-				);
+
+				// Close dialog and  Show the toast
+				closeDialog();
+
+				showToast = true;
+				toastMessage =
+					offerAction === 'CREATE'
+						? `Offer for product ${productTitle} with amount ${offerAmount} TND has been created successfully`
+						: `Offer for product ${productTitle} was updated with amount ${offerAmount} TND successfully`;
+
+				setTimeout(() => {
+					showToast = false;
+				}, 5000);
 			}
 		} catch (error: any) {
 			console.error('Error:', error);
@@ -125,3 +150,11 @@
 		<button class="btn btn-sm align-middle" on:click={makeOffer}>Submit</button>
 	</div>
 </dialog>
+
+{#if showToast}
+	<div class="toast toast-top toast-end mt-16">
+		<div class="alert alert-success">
+			<span>{toastMessage}</span>
+		</div>
+	</div>
+{/if}
