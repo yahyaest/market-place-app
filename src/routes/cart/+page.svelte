@@ -3,16 +3,74 @@
 	import axios from 'axios';
 	import type { PageData } from './$types';
 	import { writable, type Writable } from 'svelte/store';
+	import { addProductOwnerNotification, addUserNotification } from '../../service/notification';
+	import Cookies from 'js-cookie';
 
 	export let data: PageData;
-	const gatewayBaseUrl = data.gatewayBaseUrl;
+	const gatewayBaseUrl = data.gatewayBaseUrl as string;
+	const notificationBaseUrl = data.notificationBaseUrl as string;
+	const user = data.user;
+	const userImage = data.userImage;
 	const userOffers: Writable<any[] | null> = writable(data.userOffers);
+	let showToast: boolean = false;
+	let toastMessage: string = '';
+
+	const handleNotification = (offer:any) => {
+		showToast = true;
+		toastMessage = `Offer for product ${offer.productTitle} was removed successfully`;
+		setTimeout(() => {
+			showToast = false;
+		}, 5000);
+	};
 
 	const deleteOffer = async (offerId: number) => {
 		try {
 			await axios.delete(`/api/offers/${offerId}`);
 			const offers = [...($userOffers as any[])];
 			userOffers.set(offers.filter((offer) => offer.id !== offerId));
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const createUserNotification = async (offer: any) => {
+		try {
+			const token = Cookies.get('token') as string;
+			const userNotificationPayload = {
+				userEmail: user.email,
+				username: user.username,
+				userImage,
+				userId: user.id,
+				title: 'Delete Product Offer',
+				message: `You Deleted your offer to ${offer.productOwnerUsername} for product ${offer.productTitle}`,
+				seen: false
+			};
+
+			await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const createProductOwnerNotification = async (offer: any) => {
+		try {
+			const appSigninPayload = {
+				email: data.appEmail as string,
+				password: data.appPassword as string
+			};
+			const productOwnerNotificationPayload = {
+				title: 'Delete Product Offer',
+				userImage,
+				message: `${user.username} has deleted his offer for product ${offer.productTitle}`
+			};
+
+			await addProductOwnerNotification(
+				notificationBaseUrl,
+				gatewayBaseUrl,
+				appSigninPayload,
+				offer.productOwner,
+				productOwnerNotificationPayload
+			);
 		} catch (error) {
 			console.error(error);
 		}
@@ -99,8 +157,14 @@
 							</div>
 						</th>
 						<th>
-							<button class="btn btn-error btn-xs" on:click={() => deleteOffer(offer.id)}
-								>Delete</button
+							<button
+								class="btn btn-error btn-xs"
+								on:click={async () => {
+									await deleteOffer(offer.id);
+									await createUserNotification(offer);
+									await createProductOwnerNotification(offer);
+                                    handleNotification(offer)
+								}}>Delete</button
 							>
 						</th>
 					</tr>
@@ -109,3 +173,11 @@
 		</table>
 	{/if}
 </div>
+
+{#if showToast}
+	<div class="toast toast-top toast-end mt-16">
+		<div class="alert alert-success">
+			<span>{toastMessage}</span>
+		</div>
+	</div>
+{/if}

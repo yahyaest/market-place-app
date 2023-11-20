@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import prisma from '$lib/prisma';
-import { getToken, getUserAvatar, getUserByEmail } from '../../service/gateway';
+import { getCurrentUserAvatar, getToken, getUserAvatar, getUserByEmail } from '../../service/gateway';
 import type { PageServerLoad } from './$types';
 
 const getUserOffers = async (gatewayBaseUrl: string, appToken: string, user: any) => {
@@ -49,14 +49,18 @@ export const load = (async ({ cookies }) => {
 			password: process.env.MARKETPLACE_PASSWORD as string
 		};
 		const appToken = await getToken(gatewayBaseUrl, signinPayload.email, signinPayload.password);
+		const userToken = cookies.get("token") as any
 		const user = JSON.parse(cookies.get('user') as string);
 		const userOffers = getUserOffers(gatewayBaseUrl, appToken, user);
+		const userImage = await getCurrentUserAvatar(gatewayBaseUrl, userToken);
 		return {
 			gatewayBaseUrl,
 			notificationBaseUrl,
 			appEmail: process.env.MARKETPLACE_USERNAME,
 			appPassword: process.env.MARKETPLACE_PASSWORD,
-			userOffers
+			user,
+			userOffers,
+			userImage
 		};
 	} catch (error: any) {
 		console.error('Error:', error);
