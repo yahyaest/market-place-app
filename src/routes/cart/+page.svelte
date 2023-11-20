@@ -1,15 +1,27 @@
 <script lang="ts">
 	import ProductOffer from '$lib/components/productPage/productOffer.svelte';
+	import axios from 'axios';
 	import type { PageData } from './$types';
+	import { writable, type Writable } from 'svelte/store';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl;
-	const userOffers = data.userOffers;
+	const userOffers: Writable<any[] | null> = writable(data.userOffers);
+
+	const deleteOffer = async (offerId: number) => {
+		try {
+			await axios.delete(`/api/offers/${offerId}`);
+			const offers = [...($userOffers as any[])];
+			userOffers.set(offers.filter((offer) => offer.id !== offerId));
+		} catch (error) {
+			console.error(error);
+		}
+	};
 </script>
 
 <div class="overflow-x-auto mx-auto w-4/5 sm:w-5/6">
 	<h1 class="text-center text-2xl font-bold mb-5">Your offers</h1>
-	{#if userOffers}
+	{#if $userOffers}
 		<table class="table">
 			<thead>
 				<tr>
@@ -23,7 +35,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each userOffers as offer (offer.id)}
+				{#each $userOffers as offer (offer.id)}
 					<tr>
 						<th>
 							<label>
@@ -40,7 +52,7 @@
 								<div>
 									<div class="font-bold">{offer.productTitle}</div>
 									<div class="badge badge-ghost badge-sm mx-1">{offer.productCategory}</div>
-                                    <div class="badge badge-ghost badge-sm mx-1">{offer.productPrice} TND</div>
+									<div class="badge badge-ghost badge-sm mx-1">{offer.productPrice} TND</div>
 								</div>
 							</div>
 						</td>
@@ -76,18 +88,20 @@
 							</td>
 						{/if}
 						<th>
-                            <div>
-                                <ProductOffer
-                                    bind:data
-                                    productTitle={offer.productTitle}
-                                    productPrice={offer.productPrice}
-                                    offer={offer}
-                                    pageSource={"CartPage"}
-                                />
-                            </div>
+							<div>
+								<ProductOffer
+									bind:data
+									productTitle={offer.productTitle}
+									productPrice={offer.productPrice}
+									{offer}
+									pageSource={'CartPage'}
+								/>
+							</div>
 						</th>
 						<th>
-							<button class="btn btn-error btn-xs">Delete</button>
+							<button class="btn btn-error btn-xs" on:click={() => deleteOffer(offer.id)}
+								>Delete</button
+							>
 						</th>
 					</tr>
 				{/each}
