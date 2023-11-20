@@ -12,6 +12,8 @@
 	export let productPrice: number;
 	export let pageSource: string;
 
+	const gatewayBaseUrl = data.gatewayBaseUrl as string;
+	const notificationBaseUrl = data.notificationBaseUrl;
 	const user: User = data.user;
 	const product: Product = data.product;
 	const productOwner = data.productOwner;
@@ -35,14 +37,22 @@
 		}
 	};
 
-	const makeOffer = async () => {
-		if (!user) {
-			return alert('You need to login to make an offer');
-		}
+	const handleToast = () => {
+		showToast = true;
+		toastMessage =
+			offerAction === 'CREATE'
+				? `Offer for product ${productTitle} with amount ${offerAmount} TND has been created successfully`
+				: `Offer for product ${productTitle} was updated with amount ${offerAmount} TND successfully`;
+
+		setTimeout(() => {
+			showToast = false;
+		}, 5000);
+	};
+
+	const postOrUpdateOffer = async () => {
 		try {
-			let offerResponse;
 			if (offer) {
-				offerResponse = await axios.patch(`/api/offers/${offer.id}`, { amount: offerAmount });
+				await axios.patch(`/api/offers/${offer.id}`, { amount: offerAmount });
 				offerAction = 'UPDATE';
 			} else {
 				const offerPayload = {
@@ -53,67 +63,77 @@
 					status: 'PENDING',
 					amount: offerAmount
 				};
-				offerResponse = await axios.post('/api/offers', offerPayload);
+				await axios.post('/api/offers', offerPayload);
 				offerAction = 'CREATE';
 			}
-			if (offerResponse.data && (offerResponse.status === 200 || 201)) {
-				// Post User Notification
-				const notificationBaseUrl = data.notificationBaseUrl;
-				const token = Cookies.get('token') as string;
-				const userImage = await getUserAvatar();
-				const userNotificationPayload = {
-					userEmail: user.email,
-					username: user.username,
-					userImage,
-					userId: user.id,
-					title: 'Make Product Offer',
-					message: offer
-						? `You updated your offer to ${
-								productOwner ? productOwner : offer.productOwnerUsername
-						  } for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
-						: `You sent an offer to ${
-								productOwner ? productOwner : offer.productOwnerUsername
-						  } for product ${productTitle} with amount of ${offerAmount} TND`,
-					seen: false
-				};
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	};
 
-				await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
+	const createUserNotification = async (offer: any) => {
+		try {
+			const userImage = await getUserAvatar();
+			const token = Cookies.get('token') as string;
+			const userNotificationPayload = {
+				userEmail: user.email,
+				username: user.username,
+				userImage,
+				userId: user.id,
+				title: offer ? 'Update Product Offer' : 'Make Product Offer',
+				message: offer
+					? `You updated your offer to ${
+							productOwner ? productOwner : offer.productOwnerUsername
+					  } for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
+					: `You sent an offer to ${
+							productOwner ? productOwner : offer.productOwnerUsername
+					  } for product ${productTitle} with amount of ${offerAmount} TND`,
+				seen: false
+			};
 
-				// Post ProductOwner Notification
-				const gatewayBaseUrl = data.gatewayBaseUrl as string;
-				const appSigninPayload = {
-					email: data.appEmail as string,
-					password: data.appPassword as string
-				};
-				const productOwnerNotificationPayload = {
-					title: 'Make Product Offer',
-					userImage,
-					message: offer
-						? `${user.username} has changed his offer for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
-						: `You get an offer from ${user.username} for product ${productTitle} with amount of ${offerAmount} TND`
-				};
+			await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-				await addProductOwnerNotification(
-					notificationBaseUrl,
-					gatewayBaseUrl,
-					appSigninPayload,
-					product ? product.username : offer.productOwner,
-					productOwnerNotificationPayload
-				);
+	const createProductOwnerNotification = async (offer: any) => {
+		try {
+			const userImage = await getUserAvatar();
+			const appSigninPayload = {
+				email: data.appEmail as string,
+				password: data.appPassword as string
+			};
+			const productOwnerNotificationPayload = {
+				title: offer ? 'Update Product Offer' : 'Make Product Offer',
+				userImage,
+				message: offer
+					? `${user.username} has changed his offer for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
+					: `You get an offer from ${user.username} for product ${productTitle} with amount of ${offerAmount} TND`
+			};
 
-				// Close dialog and  Show the toast
-				closeDialog();
+			await addProductOwnerNotification(
+				notificationBaseUrl,
+				gatewayBaseUrl,
+				appSigninPayload,
+				product ? product.username : offer.productOwner,
+				productOwnerNotificationPayload
+			);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
-				showToast = true;
-				toastMessage =
-					offerAction === 'CREATE'
-						? `Offer for product ${productTitle} with amount ${offerAmount} TND has been created successfully`
-						: `Offer for product ${productTitle} was updated with amount ${offerAmount} TND successfully`;
-
-				setTimeout(() => {
-					showToast = false;
-				}, 5000);
-			}
+	const handleSubmit = async () => {
+		if (!user) {
+			return alert('You need to login to make an offer');
+		}
+		try {
+			await postOrUpdateOffer();
+			await createUserNotification(offer);
+			await createProductOwnerNotification(offer);
+			closeDialog();
+			handleToast();
 		} catch (error: any) {
 			console.error('Error:', error);
 			alert(error.response.data.message.body.message);
@@ -147,7 +167,7 @@
 				class="input input-bordered input-primary w-full max-w-xs mb-3"
 			/>
 		</div>
-		<button class="btn btn-sm align-middle" on:click={makeOffer}>Submit</button>
+		<button class="btn btn-sm align-middle" on:click={handleSubmit}>Submit</button>
 	</div>
 </dialog>
 
