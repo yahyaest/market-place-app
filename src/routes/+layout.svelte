@@ -6,7 +6,7 @@
 
 	export let data;
 
-	const  userImage = data.userImage;
+	const userImage = data.userImage;
 	const gatewayBaseUrl = data.gatewayBaseUrl;
 
 	// NOTE: the element that is using one of the theme attributes must be in the DOM on mount
@@ -16,6 +16,7 @@
 	});
 </script>
 
+<!-- Navbar -->
 <div class="navbar sticky top-0 z-50 bg-red-500 mb-10">
 	<div class="flex-1">
 		<a href="/" class="btn btn-ghost normal-case text-xl">MarketPlace</a>
@@ -84,6 +85,30 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="flex-none">
+			<ul class="dropdown dropdown-end">
+				<li>
+					<label class="btn btn-ghost btn-circle">
+						<button>
+							<div class="indicator">
+								<svg
+									class="w-5 h-5 text-gray-800 dark:text-white"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+								>
+									<path
+										d="M17.876.517A1 1 0 0 0 17 0H3a1 1 0 0 0-.871.508C1.63 1.393 0 5.385 0 6.75a3.236 3.236 0 0 0 1 2.336V19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9.044a3.242 3.242 0 0 0 1-2.294c0-1.283-1.626-5.33-2.124-6.233ZM15.5 14.7a.8.8 0 0 1-.8.8h-2.4a.8.8 0 0 1-.8-.8v-2.4a.8.8 0 0 1 .8-.8h2.4a.8.8 0 0 1 .8.8v2.4ZM16.75 8a1.252 1.252 0 0 1-1.25-1.25 1 1 0 0 0-2 0 1.25 1.25 0 0 1-2.5 0 1 1 0 0 0-2 0 1.25 1.25 0 0 1-2.5 0 1 1 0 0 0-2 0A1.252 1.252 0 0 1 3.25 8 1.266 1.266 0 0 1 2 6.75C2.306 5.1 2.841 3.501 3.591 2H16.4A19.015 19.015 0 0 1 18 6.75 1.337 1.337 0 0 1 16.75 8Z"
+									/>
+								</svg>
+							</div>
+						</button>
+					</label>
+				</li>
+			</ul>
 		</div>
 
 		<div class="flex-none">
