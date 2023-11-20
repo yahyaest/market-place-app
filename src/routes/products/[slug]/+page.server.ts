@@ -10,21 +10,27 @@ export const load = (async ({ params, cookies }) => {
 	const user = JSON.parse(cookies.get('user') as string);
 
 	const getProductComments = async (commentBaseUrl: string, token: string, product: any) => {
-		// const token = cookies.get('token') as string;
-		const thread = await getThreadByName(commentBaseUrl, token, product?.slug as string);
-		const comments = await getThreadComments(commentBaseUrl, token, thread?.id as number);
-		return comments;
+		try {
+			const thread = await getThreadByName(commentBaseUrl, token, product?.slug as string);
+			const comments = await getThreadComments(commentBaseUrl, token, thread?.id as number);
+			return comments;
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	const getProductReplies = async (commentBaseUrl: string, token: string, product: any) => {
-		// const token = cookies.get('token') as string;
-		const comments = await getProductComments(commentBaseUrl, token, product);
-		const replies: { commentId: number; commentReplies: Reply[] }[] = [];
-		for (const comment of comments) {
-			const commentReplies = await getCommentReplies(commentBaseUrl, token, comment.id);
-			replies.push({ commentId: comment.id, commentReplies });
+		try {
+			const comments = await getProductComments(commentBaseUrl, token, product);
+			const replies: { commentId: number; commentReplies: Reply[] }[] = [];
+			for (const comment of comments) {
+				const commentReplies = await getCommentReplies(commentBaseUrl, token, comment.id);
+				replies.push({ commentId: comment.id, commentReplies });
+			}
+			return replies;
+		} catch (error) {
+			console.error(error);
 		}
-		return replies;
 	};
 
 	const getUserProductOffer = async (productId: number) => {
@@ -51,8 +57,12 @@ export const load = (async ({ params, cookies }) => {
 
 		// get product data
 		const product = await prisma.product.findUnique({ where: { slug } });
-		const productOwnerUser = await getUserByEmail(gatewayBaseUrl, product?.username as string, appToken)
-  const productOwner = productOwnerUser?.username
+		const productOwnerUser = await getUserByEmail(
+			gatewayBaseUrl,
+			product?.username as string,
+			appToken
+		);
+		const productOwner = productOwnerUser?.username;
 		if (product) {
 			const productImages = await prisma.image.findMany({ where: { productId: product?.id } });
 			const productTags = await prisma.tag.findMany({ where: { productId: product?.id } });
