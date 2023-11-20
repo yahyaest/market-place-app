@@ -2,7 +2,6 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { themeChange } from 'theme-change';
-	import { getCurrentUserAvatar } from '../service/gateway';
 
 	export let data;
 
@@ -48,115 +47,121 @@
 			</ul>
 		</div>
 
-		<div class="flex-none">
-			<div class="dropdown dropdown-end">
-				<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-				<!-- svelte-ignore a11y-label-has-associated-control -->
-				<label tabindex="0" class="btn btn-ghost btn-circle">
-					<div class="indicator">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-5 w-5"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-							/></svg
-						>
-						<!-- <span class="badge badge-sm indicator-item">8</span> -->
-						<span class="badge badge-xs badge-primary indicator-item" />
-					</div>
-				</label>
-				<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-				<div
-					tabindex="0"
-					class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow"
-				>
-					<div class="card-body">
-						<span class="font-bold text-lg">8 Items</span>
-						<span class="text-info">Subtotal: $999</span>
-						<div class="card-actions">
-							<button class="btn btn-primary btn-block">View cart</button>
+		{#if data.user}
+			<div class="flex-none">
+				<div class="dropdown dropdown-end">
+					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+					<!-- svelte-ignore a11y-label-has-associated-control -->
+					<label tabindex="0" class="btn btn-ghost btn-circle">
+						<div class="indicator">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-5 w-5"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+								/></svg
+							>
+							<!-- <span class="badge badge-sm indicator-item">8</span> -->
+							<span class="badge badge-xs badge-primary indicator-item" />
+						</div>
+					</label>
+					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+					<div
+						tabindex="0"
+						class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow"
+					>
+						<div class="card-body">
+							<span class="font-bold text-lg">8 Items</span>
+							<span class="text-info">Subtotal: $999</span>
+							<div class="card-actions">
+								<button class="btn btn-primary btn-block">View cart</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		{/if}
 
-		<div class="flex-none">
-			<ul class="dropdown dropdown-end">
-				<li>
-					<label class="btn btn-ghost btn-circle">
-						<button>
-							<div class="indicator">
-								<svg
-									class="w-5 h-5 text-gray-800 dark:text-white"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-								>
-									<path
-										d="M17.876.517A1 1 0 0 0 17 0H3a1 1 0 0 0-.871.508C1.63 1.393 0 5.385 0 6.75a3.236 3.236 0 0 0 1 2.336V19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9.044a3.242 3.242 0 0 0 1-2.294c0-1.283-1.626-5.33-2.124-6.233ZM15.5 14.7a.8.8 0 0 1-.8.8h-2.4a.8.8 0 0 1-.8-.8v-2.4a.8.8 0 0 1 .8-.8h2.4a.8.8 0 0 1 .8.8v2.4ZM16.75 8a1.252 1.252 0 0 1-1.25-1.25 1 1 0 0 0-2 0 1.25 1.25 0 0 1-2.5 0 1 1 0 0 0-2 0 1.25 1.25 0 0 1-2.5 0 1 1 0 0 0-2 0A1.252 1.252 0 0 1 3.25 8 1.266 1.266 0 0 1 2 6.75C2.306 5.1 2.841 3.501 3.591 2H16.4A19.015 19.015 0 0 1 18 6.75 1.337 1.337 0 0 1 16.75 8Z"
-									/>
-								</svg>
-							</div>
-						</button>
-					</label>
-				</li>
-			</ul>
-		</div>
-
-		<div class="flex-none">
-			<ul class="dropdown dropdown-end">
-				<li>
-					<label class="btn btn-ghost btn-circle">
-						<button>
-							<div class="indicator">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-									><path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-									/></svg
-								>
-								<span class="badge badge-sm indicator-item">8</span>
-							</div>
-						</button>
-					</label>
-					<ul
-						class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-96"
-					>
-						<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
-						<li>
-							<div class="flex flex-row justify-between">
-								<img
-									class="btn btn-ghost btn-circle avatar"
-									src={`${gatewayBaseUrl}/${userImage}`}
-									alt={userImage}
-								/>
-								<div>
-									<h3>Notif Username - Notif Title</h3>
-									<p>Notif Message</p>
+		{#if data.user}
+			<div class="flex-none">
+				<ul class="dropdown dropdown-end">
+					<li>
+						<label class="btn btn-ghost btn-circle">
+							<button>
+								<div class="indicator">
+									<svg
+										class="w-5 h-5 text-gray-800 dark:text-white"
+										aria-hidden="true"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<path
+											d="M17.876.517A1 1 0 0 0 17 0H3a1 1 0 0 0-.871.508C1.63 1.393 0 5.385 0 6.75a3.236 3.236 0 0 0 1 2.336V19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9.044a3.242 3.242 0 0 0 1-2.294c0-1.283-1.626-5.33-2.124-6.233ZM15.5 14.7a.8.8 0 0 1-.8.8h-2.4a.8.8 0 0 1-.8-.8v-2.4a.8.8 0 0 1 .8-.8h2.4a.8.8 0 0 1 .8.8v2.4ZM16.75 8a1.252 1.252 0 0 1-1.25-1.25 1 1 0 0 0-2 0 1.25 1.25 0 0 1-2.5 0 1 1 0 0 0-2 0 1.25 1.25 0 0 1-2.5 0 1 1 0 0 0-2 0A1.252 1.252 0 0 1 3.25 8 1.266 1.266 0 0 1 2 6.75C2.306 5.1 2.841 3.501 3.591 2H16.4A19.015 19.015 0 0 1 18 6.75 1.337 1.337 0 0 1 16.75 8Z"
+										/>
+									</svg>
 								</div>
-								<span>2w</span>
-							</div>
-						</li>
-						<li class="btn btn-ghost"><a href="/">See all</a></li>
-					</ul>
-				</li>
-			</ul>
-		</div>
+							</button>
+						</label>
+					</li>
+				</ul>
+			</div>
+		{/if}
+
+		{#if data.user}
+			<div class="flex-none">
+				<ul class="dropdown dropdown-end">
+					<li>
+						<label class="btn btn-ghost btn-circle">
+							<button>
+								<div class="indicator">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="h-5 w-5"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										><path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+										/></svg
+									>
+									<span class="badge badge-sm indicator-item">8</span>
+								</div>
+							</button>
+						</label>
+						<ul
+							class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-96"
+						>
+							<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
+							<li>
+								<div class="flex flex-row justify-between">
+									<img
+										class="btn btn-ghost btn-circle avatar"
+										src={`${gatewayBaseUrl}/${userImage}`}
+										alt={userImage}
+									/>
+									<div>
+										<h3>Notif Username - Notif Title</h3>
+										<p>Notif Message</p>
+									</div>
+									<span>2w</span>
+								</div>
+							</li>
+							<li class="btn btn-ghost"><a href="/">See all</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		{/if}
 
 		{#if data.user}
 			<div class="flex-none">

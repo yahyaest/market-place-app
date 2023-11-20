@@ -80,7 +80,7 @@
 			{/if}
 		</div>
 
-		{#if product.username !== user.email}
+		{#if user &&  product.username !== user.email}
 			<ProductOffer
 				bind:data
 				productTitle={product.title}

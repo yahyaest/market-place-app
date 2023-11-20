@@ -7,8 +7,10 @@ import axios from 'axios';
 
 export const load = (async ({ params, cookies }) => {
 	const { slug } = params;
-	const user = JSON.parse(cookies.get('user') as string);
-
+	let user : any;
+	if (cookies.get('user')) {
+		user = JSON.parse(cookies.get('user') as string);
+	}
 	const getProductComments = async (commentBaseUrl: string, token: string, product: any) => {
 		try {
 			const thread = await getThreadByName(commentBaseUrl, token, product?.slug as string);
