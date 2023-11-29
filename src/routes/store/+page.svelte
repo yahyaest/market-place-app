@@ -1,9 +1,13 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
 	const userStoreProducts = data.userStoreProducts;
+	const goToProductStorePage = async (productSlug: string) => {
+		goto(`/store/${productSlug}`);
+	};
 </script>
 
 <div class="overflow-x-auto mx-auto w-4/5 sm:w-5/6">
@@ -36,7 +40,10 @@
 								{`${product.offers.length} ${product.offers.length > 1 ? 'Offers' : 'Offer'}`}
 							</div>
 							<div class="card-actions justify-end">
-								<button class="btn btn-primary btn-sm cursor-pointer">Manage</button>
+								<button
+									class="btn btn-primary btn-sm cursor-pointer"
+									on:click={() => goToProductStorePage(product.slug)}>Manage</button
+								>
 							</div>
 						</div>
 					</div>
