@@ -13,8 +13,11 @@ const getUserStoreProducts = async (user: any) => {
 				where: { productId: product.id }
 			});
 
+			const productOffers = await prisma.offer.findMany({where:{productId: product.id}})
+
 			const userStoreProduct: any = product;
 			userStoreProduct.image = productImages[0].url;
+			userStoreProduct.offers = productOffers
 			userStoreProducts.push(userStoreProduct);
 		}
 		return userStoreProducts;
