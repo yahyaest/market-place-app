@@ -5,8 +5,9 @@
 	export let data: PageData;
 
 	const userStoreProducts = data.userStoreProducts;
+	const user = data.user;
 	const goToProductStorePage = async (productSlug: string) => {
-		goto(`/store/${productSlug}`);
+		goto(`/store/${user.username}/${productSlug}`);
 	};
 </script>
 

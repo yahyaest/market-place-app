@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import prisma from '$lib/prisma';
 import type { PageServerLoad } from './$types';
-import { getCurrentUserAvatar, getToken, getUserAvatar, getUserByEmail } from '../../../service/gateway';
+import { getCurrentUserAvatar, getToken, getUserAvatar, getUserByEmail } from '../../../../service/gateway';
 
 const getProductOffers = async (user: any, product: any, token: string) => {
 	if (user) {
@@ -48,7 +48,6 @@ export const load = (async ({ params, cookies }) => {
             notificationBaseUrl,
             appEmail: process.env.MARKETPLACE_USERNAME,
 			appPassword: process.env.MARKETPLACE_PASSWORD,
-            user,
             userImage,
             product,
 			productOffers

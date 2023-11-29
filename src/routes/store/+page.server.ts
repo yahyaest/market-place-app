@@ -33,6 +33,7 @@ export const load = (async ({ cookies }) => {
         const user = JSON.parse(cookies.get('user') as string);
         const userStoreProducts = getUserStoreProducts(user)
 		return {
+			user,
 			userStoreProducts
 		};
 	} catch (error: any) {

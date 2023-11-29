@@ -2,13 +2,12 @@
 	import axios from 'axios';
 	import type { PageData } from './$types';
 	import { writable, type Writable } from 'svelte/store';
-	import { addProductOwnerNotification, addUserNotification } from '../../../service/notification';
+	import { addProductOwnerNotification, addUserNotification } from '../../../../service/notification';
 	import Cookies from 'js-cookie';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
 	const notificationBaseUrl = data.notificationBaseUrl as string;
-	const user = data.user;
 	const userImage = data.userImage;
 	const product = data.product;
 	const userOffers: Writable<any[] | null> = writable(data.productOffers);
