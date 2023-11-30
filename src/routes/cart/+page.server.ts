@@ -30,6 +30,7 @@ const getUserOffers = async (gatewayBaseUrl: string, appToken: string, user: any
 			userOffer.productOwnerUsername = productOwnerUser?.username;
 			userOffer.productOwnerImage = productOwnerImage;
 			userOffer.productPrice = offerProduct?.price;
+			userOffer.productIsSold = offerProduct?.sold;
 			userOffers.push(userOffer);
 		}
 		return userOffers;

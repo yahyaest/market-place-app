@@ -8,8 +8,6 @@
 
 	export let data;
 
-	console.log(data);
-
 	const gatewayBaseUrl = data.gatewayBaseUrl;
 	const notificationBaseUrl = data.notificationBaseUrl;
 	const userImage = data.userImage;

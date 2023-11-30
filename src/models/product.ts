@@ -10,6 +10,7 @@ export interface Product {
 	username: string;
 	description: string;
 	price: number;
+	sold:boolean;
 	category: string;
 	subCategory: string;
 	phone: string;

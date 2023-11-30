@@ -19,6 +19,7 @@ model Product {
   username    String
   description String
   price       Int
+  sold        Boolean  @default(false)
   category    String
   subCategory String
   phone       String

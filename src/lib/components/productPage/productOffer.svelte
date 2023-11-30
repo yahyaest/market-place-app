@@ -52,7 +52,7 @@
 	const postOrUpdateOffer = async () => {
 		try {
 			if (offer) {
-				await axios.patch(`/api/offers/${offer.id}`, { amount: offerAmount });
+				await axios.patch(`/api/offers/${offer.id}`, { amount: offerAmount, status: 'PENDING' });
 				offerAction = 'UPDATE';
 			} else {
 				const offerPayload = {
@@ -134,6 +134,11 @@
 			await createProductOwnerNotification(offer);
 			closeDialog();
 			handleToast();
+			if (pageSource === 'CartPage') {
+				setTimeout(function () {
+					window.location.reload();
+				}, 3000);
+			}
 		} catch (error: any) {
 			console.error('Error:', error);
 			alert(error.response.data.message.body.message);
@@ -141,35 +146,44 @@
 	};
 </script>
 
-<button
-	class={`btn ${pageSource === 'CartPage' ? 'btn-warning btn-xs' : ''}`}
-	on:click={() => {
-		const modal = document.getElementById(`my_modal_${offer ? offer.id : 0}`);
-		if (modal) {
-			modal.showModal();
-		}
-	}}>{pageSource === 'CartPage' ? 'Update' : offer ? 'Change Offer' : 'Make Offer'}</button
->
-<dialog id={`my_modal_${offer ? offer.id : 0}`} class="modal">
-	<div class="modal-box">
-		<form method="dialog">
-			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-		</form>
-		<h3 class="font-bold text-lg">{productTitle}</h3>
-		<div>
-			<p class="py-4">{offer ? 'Update your offer' : 'Set your offer'}</p>
-			<input
-				type="number"
-				placeholder={`${productPrice}`}
-				min="0"
-				max={productPrice}
-				bind:value={offerAmount}
-				class="input input-bordered input-primary w-full max-w-xs mb-3"
-			/>
+{#if pageSource === 'CartPage' || !product.sold}
+	<button
+		class={`btn ${pageSource === 'CartPage' ? 'btn-warning btn-xs' : 'btn-secondary'}`}
+		disabled={(offer ? (offer.status === 'ACCEPTED' ? true : false) : false) || offer.productIsSold}
+		on:click={() => {
+			const modal = document.getElementById(`my_modal_${offer ? offer.id : 0}`);
+			if (modal) {
+				modal.showModal();
+			}
+		}}>{pageSource === 'CartPage' ? 'Update' : offer ? 'Change Offer' : 'Make Offer'}</button
+	>
+	<dialog id={`my_modal_${offer ? offer.id : 0}`} class="modal">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+			</form>
+			<h3 class="font-bold text-lg">{productTitle}</h3>
+			<div>
+				<p class="py-4">{offer ? 'Update your offer' : 'Set your offer'}</p>
+				<input
+					type="number"
+					placeholder={`${productPrice}`}
+					min="0"
+					max={productPrice}
+					bind:value={offerAmount}
+					class="input input-bordered input-primary w-full max-w-xs mb-3"
+				/>
+			</div>
+			<button class="btn btn-sm align-middle" on:click={handleSubmit}>Submit</button>
 		</div>
-		<button class="btn btn-sm align-middle" on:click={handleSubmit}>Submit</button>
+	</dialog>
+{/if}
+
+{#if product && product.sold}
+	<div class="alert alert-warning">
+		<span class="text-center font-bold">Product Already sold</span>
 	</div>
-</dialog>
+{/if}
 
 {#if showToast}
 	<div class="toast toast-top toast-end mt-16">

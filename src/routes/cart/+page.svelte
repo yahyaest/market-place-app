@@ -15,7 +15,7 @@
 	let showToast: boolean = false;
 	let toastMessage: string = '';
 
-	const handleNotification = (offer:any) => {
+	const handleNotification = (offer: any) => {
 		showToast = true;
 		toastMessage = `Offer for product ${offer.productTitle} was removed successfully`;
 		setTimeout(() => {
@@ -135,10 +135,18 @@
 						{#if offer.status === 'PENDING'}
 							<td>
 								<div class="badge badge-sm badge-outline badge-warning">{offer.status}</div>
+								<br />
+								{#if offer.productIsSold}
+									<span class="text-xs">Product Already sold</span>
+								{/if}
 							</td>
 						{:else if offer.status === 'REJECTED'}
 							<td>
 								<div class="badge badge-sm badge-outline badge-error">{offer.status}</div>
+								<br />
+								{#if offer.productIsSold}
+									<span class="text-xs">Product Already sold</span>
+								{/if}
 							</td>
 						{:else}
 							<td>
@@ -159,11 +167,12 @@
 						<th>
 							<button
 								class="btn btn-error btn-xs"
+								disabled={offer.status === 'ACCEPTED' ? true : false || offer.productIsSold}
 								on:click={async () => {
 									await deleteOffer(offer.id);
 									await createUserNotification(offer);
 									await createProductOwnerNotification(offer);
-                                    handleNotification(offer)
+									handleNotification(offer);
 								}}>Delete</button
 							>
 						</th>
