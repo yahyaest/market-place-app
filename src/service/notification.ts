@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken, getUserAvatar, getUserByEmail } from './gateway';
+import { getToken, getUserByEmail } from './gateway';
 
 export const addUserNotification = async (baseUrl: string, token: string, payload: any) => {
 	try {
@@ -27,18 +27,17 @@ export const addUserNotification = async (baseUrl: string, token: string, payloa
 export const addProductOwnerNotification = async (
 	baseUrl: string,
 	gatewayUrl: string,
- appSigninPayload:any,
+	appSigninPayload: any,
 	productOwner: string,
- data: any
+	data: any
 ) => {
 	try {
 		const notificationBaseUrl = baseUrl;
 		const notificationUrl = `${notificationBaseUrl}/api/notifications`;
 
-  
 		// Get Product Owner User
 		const gatewayBaseUrl = gatewayUrl;
-		const signinPayload = appSigninPayload
+		const signinPayload = appSigninPayload;
 
 		const appToken = await getToken(gatewayBaseUrl, signinPayload.email, signinPayload.password);
 
@@ -47,24 +46,24 @@ export const addProductOwnerNotification = async (
 		}
 
 		const productOwnerUser = await getUserByEmail(gatewayBaseUrl, productOwner, appToken);
-  // const productOwnerImage = await getUserAvatar(gatewayBaseUrl, productOwnerUser?.email as string ,appToken)
+		// const productOwnerImage = await getUserAvatar(gatewayBaseUrl, productOwnerUser?.email as string ,appToken)
 
-  // Post notification
+		// Post notification
 		const options = {
 			headers: {
 				Authorization: `Bearer ${appToken}`
 			}
 		};
 
-  const payload = {
-   userEmail: productOwnerUser?.email,
-   username: productOwnerUser?.username,
-   userImage: data.userImage,
-   userId: productOwnerUser?.id,
-   title: data.title,
-   message: data.message,
-   seen: false
-  };
+		const payload = {
+			userEmail: productOwnerUser?.email,
+			username: productOwnerUser?.username,
+			userImage: data.userImage,
+			userId: productOwnerUser?.id,
+			title: data.title,
+			message: data.message,
+			seen: false
+		};
 
 		const response = await axios.post(notificationUrl, payload, options);
 		const notification = response.data;
@@ -72,5 +71,56 @@ export const addProductOwnerNotification = async (
 		return notification;
 	} catch (error) {
 		console.error('Failed to create notification :', error);
+	}
+};
+
+export const getUserNotifications = async (baseUrl: string, token: string, email: string) => {
+	try {
+		const notificationBaseUrl = baseUrl;
+		const notificationUrl = `${notificationBaseUrl}/api/notifications/?userEmail=${email}`;
+
+		if (!token) {
+			throw Error('No token was provided. Failed to post notification');
+		}
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.get(notificationUrl, options);
+		const notification = response.data;
+
+		return notification;
+	} catch (error) {
+		console.error('Failed to get notifications :', error);
+	}
+};
+
+export const updateNotification = async (
+	baseUrl: string,
+	token: string,
+	notificationId: number,
+	payload: any
+) => {
+	try {
+		const notificationBaseUrl = baseUrl;
+		const notificationUrl = `${notificationBaseUrl}/api/notifications/${notificationId}`;
+
+		if (!token) {
+			throw Error('No token was provided. Failed to post notification');
+		}
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.patch(notificationUrl, payload, options);
+		const notification = response.data;
+
+		return notification;
+	} catch (error) {
+		console.error('Failed to update notification :', error);
 	}
 };

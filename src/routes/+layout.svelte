@@ -2,11 +2,51 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { themeChange } from 'theme-change';
+	import type { Notification } from '../models/notification';
+	import { updateNotification } from '../service/notification';
+	import { goto } from '$app/navigation';
 
 	export let data;
 
-	const userImage = data.userImage;
+	console.log(data);
+
 	const gatewayBaseUrl = data.gatewayBaseUrl;
+	const notificationBaseUrl = data.notificationBaseUrl;
+	const userImage = data.userImage;
+	const latestUserNotifications: Notification[] = data.latestUserNotifications;
+	const notificationsNumber = data.notificationsNumber;
+
+	const formatRelativeTime = (dateString: string | Date) => {
+		const inputDate = new Date(dateString);
+		const currentDate = new Date();
+
+		const timeDifference = currentDate - inputDate;
+		const secondsDifference = Math.floor(timeDifference / 1000);
+		const minutesDifference = Math.floor(secondsDifference / 60);
+		const hoursDifference = Math.floor(minutesDifference / 60);
+		const daysDifference = Math.floor(hoursDifference / 24);
+		const monthsDifference = Math.floor(daysDifference / 30.44);
+		const yearsDifference = Math.floor(monthsDifference / 12);
+
+		if (yearsDifference > 0) {
+			return `${yearsDifference} year${yearsDifference !== 1 ? 's' : ''} ago`;
+		} else if (monthsDifference > 0) {
+			return `${monthsDifference} month${monthsDifference !== 1 ? 's' : ''} ago`;
+		} else if (daysDifference > 0) {
+			return `${daysDifference} day${daysDifference !== 1 ? 's' : ''} ago`;
+		} else if (hoursDifference > 0) {
+			return `${hoursDifference} hour${hoursDifference !== 1 ? 's' : ''} ago`;
+		} else if (minutesDifference > 0) {
+			return `${minutesDifference} minute${minutesDifference !== 1 ? 's' : ''} ago`;
+		} else {
+			return `${secondsDifference} second${secondsDifference !== 1 ? 's' : ''} ago`;
+		}
+	};
+
+	const handleNotificationHover = async (notificationId: number) => {
+		const payload = { seen: true };
+		await updateNotification(notificationBaseUrl, data.token, notificationId, payload);
+	};
 
 	// NOTE: the element that is using one of the theme attributes must be in the DOM on mount
 	onMount(() => {
@@ -77,10 +117,13 @@
 						class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow"
 					>
 						<div class="card-body">
-							<span class="font-bold text-lg">8 Items</span>
-							<span class="text-info">Subtotal: $999</span>
+							<span class="font-bold text-lg">{data.offerItemsNumber
+								} Items</span>
+							<span class="text-info">Subtotal: {data.offerItemsValue} TND</span>
 							<div class="card-actions">
-								<button class="btn btn-primary btn-block">View cart</button>
+								<button class="btn btn-primary btn-block" on:click={() => goto('/cart')}
+									>View cart</button
+								>
 							</div>
 						</div>
 					</div>
@@ -93,7 +136,7 @@
 				<ul class="dropdown dropdown-end">
 					<li>
 						<label class="btn btn-ghost btn-circle">
-							<button>
+							<button on:click={() => goto('/store')}>
 								<div class="indicator">
 									<svg
 										class="w-5 h-5 text-gray-800 dark:text-white"
@@ -134,28 +177,40 @@
 											d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
 										/></svg
 									>
-									<span class="badge badge-sm indicator-item">8</span>
+									<span class="badge badge-sm indicator-item">{notificationsNumber}</span>
 								</div>
 							</button>
 						</label>
 						<ul
-							class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-96"
+							class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-[32rem]"
 						>
 							<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
-							<li>
-								<div class="flex flex-row justify-between">
-									<img
-										class="btn btn-ghost btn-circle avatar"
-										src={`${gatewayBaseUrl}/${userImage}`}
-										alt={userImage}
-									/>
-									<div>
-										<h3>Notif Username - Notif Title</h3>
-										<p>Notif Message</p>
+							{#each latestUserNotifications as notification}
+								<li
+									on:mouseover={() => {
+										//	if (!notification.seen) handleNotificationHover(notification.id);
+									}}
+									on:focus={() => {
+										//	if (!notification.seen) handleNotificationHover(notification.id);
+									}}
+								>
+									<div class="flex flex-row justify-between">
+										<img
+											class="btn btn-ghost btn-circle avatar"
+											src={`${gatewayBaseUrl}/${notification.userImage}`}
+											alt={notification.userImage}
+										/>
+										<div class="w-80">
+											<h3 class="text-lg text-center font-bold mb-2">{notification.title}</h3>
+											<p class="ml-8 text-xs">{notification.message}</p>
+										</div>
+										<span class="w-20 text-xs">{formatRelativeTime(notification.createdAt)}</span>
+										{#if !notification.seen}
+											<span class="badge badge-xs badge-primary indicator-item" />
+										{/if}
 									</div>
-									<span>2w</span>
-								</div>
-							</li>
+								</li>
+							{/each}
 							<li class="btn btn-ghost"><a href="/">See all</a></li>
 						</ul>
 					</li>

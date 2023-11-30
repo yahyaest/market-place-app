@@ -23,7 +23,7 @@
 			const userNotificationPayload = {
 				userEmail: offer.email,
 				username: offer.username,
-				userImage: offer.userImage,
+				userImage,
 				userId: offer.userId,
 				title: notification.title,
 				message: notification.message,
