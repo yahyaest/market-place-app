@@ -8,18 +8,29 @@
 	import { writable, type Writable } from 'svelte/store';
 	import type { User } from '../models/user';
 	import Cookies from 'js-cookie';
-	import { navbarNotificationsCount, navbarLatestUserNotifications } from '../store';
+	import {
+		navbarNotificationsCount,
+		navbarLatestUserNotifications,
+		navbarOfferItemsNumber,
+		navbarOfferItemsValue
+	} from '../store';
 
 	export let data;
-	const user : Writable<User | null>= writable(data.user)
+	const user: Writable<User | null> = writable(data.user);
 
 	const gatewayBaseUrl = data.gatewayBaseUrl;
 	const notificationBaseUrl = data.notificationBaseUrl;
 	const userImage = data.userImage;
 	const latestUserNotifications: Notification[] = data.latestUserNotifications;
 	const notificationsNumber = data.notificationsNumber;
+	const offerItemsNumber = data.offerItemsNumber;
+	const offerItemsValue = data.offerItemsValue;
+
 	navbarNotificationsCount.set(notificationsNumber);
-	navbarLatestUserNotifications.set(latestUserNotifications)
+	navbarLatestUserNotifications.set(latestUserNotifications);
+	navbarOfferItemsNumber.set(offerItemsNumber);
+	navbarOfferItemsValue.set(offerItemsValue);
+
 	const formatRelativeTime = (dateString: string | Date) => {
 		const inputDate = new Date(dateString);
 		const currentDate = new Date();
@@ -53,11 +64,11 @@
 	};
 
 	const logout = () => {
-		Cookies.remove('user')
-		Cookies.remove('token')
-		user.set(null)
-		goto("/")
-	}
+		Cookies.remove('user');
+		Cookies.remove('token');
+		user.set(null);
+		goto('/');
+	};
 
 	// NOTE: the element that is using one of the theme attributes must be in the DOM on mount
 	onMount(() => {
@@ -128,9 +139,8 @@
 						class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow"
 					>
 						<div class="card-body">
-							<span class="font-bold text-lg">{data.offerItemsNumber
-								} Items</span>
-							<span class="text-info">Subtotal: {data.offerItemsValue} TND</span>
+							<span class="font-bold text-lg">{$navbarOfferItemsNumber} Items</span>
+							<span class="text-info">Subtotal: {$navbarOfferItemsValue} TND</span>
 							<div class="card-actions">
 								<button class="btn btn-primary btn-block" on:click={() => goto('/cart')}
 									>View cart</button
@@ -257,7 +267,7 @@
 				</ul>
 			</div>
 		{:else}
-			<button class="btn btn-outline btn-sm" on:click={()=> goto("/auth/login")}>Login</button>
+			<button class="btn btn-outline btn-sm" on:click={() => goto('/auth/login')}>Login</button>
 		{/if}
 	</div>
 </div>

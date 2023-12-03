@@ -5,7 +5,9 @@
 	import { writable, type Writable } from 'svelte/store';
 	import { addProductOwnerNotification, addUserNotification } from '../../service/notification';
 	import Cookies from 'js-cookie';
-	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../store';
+	import { navbarLatestUserNotifications, navbarNotificationsCount, navbarOfferItemsNumber, navbarOfferItemsValue } from '../../store';
+	import type { Offer } from '../../models/offer';
+	import type { Notification } from '../../models/notification';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
@@ -16,7 +18,7 @@
 	let showToast: boolean = false;
 	let toastMessage: string = '';
 
-	const handleNotification = (offer: any) => {
+	const handleToast = (offer: any) => {
 		showToast = true;
 		toastMessage = `Offer for product ${offer.productTitle} was removed successfully`;
 		setTimeout(() => {
@@ -77,18 +79,22 @@
 		}
 	};
 
-	const handleSubmit = async (offer: any) => {
-		await deleteOffer(offer.id);
-		const userNotification = await createUserNotification(offer);
-		const productOwnerNotification = await createProductOwnerNotification(offer);
-		// Update Navbar State
+	const updateNavbarState = (notification:Notification, offer: Offer) => {
 		navbarNotificationsCount.update((value) => value + 1);
 		let notifications = [...$navbarLatestUserNotifications];
 		notifications.pop();
-		notifications.unshift(userNotification);
+		notifications.unshift(notification);
 		navbarLatestUserNotifications.set(notifications);
-		//
-		handleNotification(offer);
+		navbarOfferItemsNumber.update((value) => value - 1);
+		navbarOfferItemsValue.update((value) => value - offer.amount);
+	}
+
+	const handleSubmit = async (offer: Offer) => {
+		await deleteOffer(offer.id);
+		const userNotification = await createUserNotification(offer);
+		const productOwnerNotification = await createProductOwnerNotification(offer);
+		updateNavbarState(userNotification, offer)
+		handleToast(offer);
 	};
 </script>
 

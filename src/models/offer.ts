@@ -8,5 +8,6 @@ export interface Offer {
  productOwner: string,
  productId: number,
  status: "PENDING" | "ACCEPTED" | "REJECTED",
- amount:number
+ amount:number,
+	productIsSold?:boolean
 }

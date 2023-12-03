@@ -2,13 +2,15 @@
 	import axios from 'axios';
 	import type { Product } from '../../../models/product';
 	import type { User } from '../../../models/user';
+	import type { Offer } from '../../../models/offer';
 	import Cookies from 'js-cookie';
 	import { getCurrentUserAvatar } from '../../../service/gateway';
 	import { addProductOwnerNotification, addUserNotification } from '../../../service/notification';
-	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../../store';
+	import { navbarLatestUserNotifications, navbarNotificationsCount, navbarOfferItemsNumber, navbarOfferItemsValue } from '../../../store';
+	import type { Notification } from '../../../models/notification';
 
 	export let data: any;
-	export let offer: any;
+	export let offer: Offer;
 	export let productTitle: string;
 	export let productPrice: number;
 	export let pageSource: string;
@@ -22,6 +24,7 @@
 	let toastMessage: string = '';
 	let offerAction: string = '';
 
+	const intialOfferAmount = offer ? offer.amount : 0;
 	let offerAmount = offer ? offer.amount : 0;
 
 	const closeDialog = () => {
@@ -125,6 +128,16 @@
 		}
 	};
 
+	const updateNavbarState = (notification:Notification) => {
+		navbarNotificationsCount.update((value) => value + 1);
+			let notifications = [...$navbarLatestUserNotifications];
+			notifications.pop();
+			notifications.unshift(notification);
+			navbarLatestUserNotifications.set(notifications)
+			navbarOfferItemsNumber.update((value) => value + 1);
+			navbarOfferItemsValue.update((value) => value - intialOfferAmount + offerAmount);
+	}
+
 	const handleSubmit = async () => {
 		if (!user) {
 			return alert('You need to login to make an offer');
@@ -133,13 +146,7 @@
 			await postOrUpdateOffer();
 			const userNotification = await createUserNotification(offer);
 			const productOwnerNotification = await createProductOwnerNotification(offer);
-			// Update Navbar State
-			navbarNotificationsCount.update((value) => value + 1);
-			let notifications = [...$navbarLatestUserNotifications];
-			notifications.pop();
-			notifications.unshift(userNotification);
-			navbarLatestUserNotifications.set(notifications)
-			//
+			updateNavbarState(userNotification)
 			closeDialog();
 			handleToast();
 			if (pageSource === 'CartPage') {

@@ -8,6 +8,7 @@
 	} from '../../../../service/notification';
 	import Cookies from 'js-cookie';
 	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../../../store';
+	import type { Notification } from '../../../../models/notification';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
@@ -70,6 +71,14 @@
 		}
 	};
 
+	const updateNavbarState = (notification: Notification) => {
+		navbarNotificationsCount.update((value) => value + 1);
+		let notifications = [...$navbarLatestUserNotifications];
+		notifications.pop();
+		notifications.unshift(notification);
+		navbarLatestUserNotifications.set(notifications);
+	};
+
 	const handleNotification = async (offer: any, action: string, isToast = true) => {
 		let notification = {
 			title: `${action} Product Offer`,
@@ -78,13 +87,7 @@
 		const userNotification = await createUserNotification(offer, notification);
 		notification.message = `You ${action}ed offer from ${offer.username} for product ${offer.productTitle} with amount of ${offer.amount}`;
 		const productOwnerNotification = await createProductOwnerNotification(offer, notification);
-		// Update Navbar State
-		navbarNotificationsCount.update((value) => value + 1);
-		let notifications = [...$navbarLatestUserNotifications];
-		notifications.pop();
-		notifications.unshift(productOwnerNotification);
-		navbarLatestUserNotifications.set(notifications);
-		//
+		updateNavbarState(productOwnerNotification);
 		if (isToast) {
 			showToast = true;
 			toastMessage = `Offer for product ${offer.productTitle} was ${action}ed successfully`;
