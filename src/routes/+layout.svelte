@@ -5,11 +5,17 @@
 	import type { Notification } from '../models/notification';
 	import { updateNotification } from '../service/notification';
 	import { goto } from '$app/navigation';
+	import { writable, type Writable } from 'svelte/store';
+	import type { User } from '../models/user';
+	import Cookies from 'js-cookie';
 
 	export let data;
 
+	const user : Writable<User | null>= writable(data.user)
+
 	const gatewayBaseUrl = data.gatewayBaseUrl;
 	const notificationBaseUrl = data.notificationBaseUrl;
+	// const user = data.user
 	const userImage = data.userImage;
 	const latestUserNotifications: Notification[] = data.latestUserNotifications;
 	const notificationsNumber = data.notificationsNumber;
@@ -45,6 +51,13 @@
 		const payload = { seen: true };
 		await updateNotification(notificationBaseUrl, data.token, notificationId, payload);
 	};
+
+	const logout = () => {
+		Cookies.remove('user')
+		Cookies.remove('token')
+		user.set(null)
+		goto("/")
+	}
 
 	// NOTE: the element that is using one of the theme attributes must be in the DOM on mount
 	onMount(() => {
@@ -85,7 +98,7 @@
 			</ul>
 		</div>
 
-		{#if data.user}
+		{#if $user}
 			<div class="flex-none">
 				<div class="dropdown dropdown-end">
 					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
@@ -129,7 +142,7 @@
 			</div>
 		{/if}
 
-		{#if data.user}
+		{#if $user}
 			<div class="flex-none">
 				<ul class="dropdown dropdown-end">
 					<li>
@@ -155,7 +168,7 @@
 			</div>
 		{/if}
 
-		{#if data.user}
+		{#if $user}
 			<div class="flex-none">
 				<ul class="dropdown dropdown-end">
 					<li>
@@ -216,7 +229,7 @@
 			</div>
 		{/if}
 
-		{#if data.user}
+		{#if $user}
 			<div class="flex-none">
 				<ul class="dropdown dropdown-end">
 					<li>
@@ -237,7 +250,7 @@
 								</li>
 								<li><a href="/">Settings</a></li>
 								<li><a href="/">Offers</a></li>
-								<li><a href="/">Logout</a></li>
+								<li><button on:click={logout}>Logout</button></li>
 							</ul>
 						</details>
 					</li>
