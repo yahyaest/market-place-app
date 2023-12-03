@@ -8,18 +8,18 @@
 	import { writable, type Writable } from 'svelte/store';
 	import type { User } from '../models/user';
 	import Cookies from 'js-cookie';
+	import { navbarNotificationsCount, navbarLatestUserNotifications } from '../store';
 
 	export let data;
-
 	const user : Writable<User | null>= writable(data.user)
 
 	const gatewayBaseUrl = data.gatewayBaseUrl;
 	const notificationBaseUrl = data.notificationBaseUrl;
-	// const user = data.user
 	const userImage = data.userImage;
 	const latestUserNotifications: Notification[] = data.latestUserNotifications;
 	const notificationsNumber = data.notificationsNumber;
-
+	navbarNotificationsCount.set(notificationsNumber);
+	navbarLatestUserNotifications.set(latestUserNotifications)
 	const formatRelativeTime = (dateString: string | Date) => {
 		const inputDate = new Date(dateString);
 		const currentDate = new Date();
@@ -188,7 +188,7 @@
 											d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
 										/></svg
 									>
-									<span class="badge badge-sm indicator-item">{notificationsNumber}</span>
+									<span class="badge badge-sm indicator-item">{$navbarNotificationsCount}</span>
 								</div>
 							</button>
 						</label>
@@ -196,7 +196,7 @@
 							class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-[32rem]"
 						>
 							<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
-							{#each latestUserNotifications as notification}
+							{#each $navbarLatestUserNotifications as notification}
 								<li
 									on:mouseover={() => {
 										//	if (!notification.seen) handleNotificationHover(notification.id);

@@ -2,8 +2,12 @@
 	import axios from 'axios';
 	import type { PageData } from './$types';
 	import { writable, type Writable } from 'svelte/store';
-	import { addProductOwnerNotification, addUserNotification } from '../../../../service/notification';
+	import {
+		addProductOwnerNotification,
+		addUserNotification
+	} from '../../../../service/notification';
 	import Cookies from 'js-cookie';
+	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../../../store';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
@@ -30,7 +34,7 @@
 				seen: false
 			};
 
-			await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
+			return await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
 		} catch (error) {
 			console.error(error);
 		}
@@ -54,7 +58,7 @@
 				message: notification.message
 			};
 
-			await addProductOwnerNotification(
+			return await addProductOwnerNotification(
 				notificationBaseUrl,
 				gatewayBaseUrl,
 				appSigninPayload,
@@ -71,9 +75,16 @@
 			title: `${action} Product Offer`,
 			message: `Your offer for product ${offer.productTitle} with amount of ${offer.amount} was ${action}ed  `
 		};
-		await createUserNotification(offer, notification);
+		const userNotification = await createUserNotification(offer, notification);
 		notification.message = `You ${action}ed offer from ${offer.username} for product ${offer.productTitle} with amount of ${offer.amount}`;
-		await createProductOwnerNotification(offer, notification);
+		const productOwnerNotification = await createProductOwnerNotification(offer, notification);
+		// Update Navbar State
+		navbarNotificationsCount.update((value) => value + 1);
+		let notifications = [...$navbarLatestUserNotifications];
+		notifications.pop();
+		notifications.unshift(productOwnerNotification);
+		navbarLatestUserNotifications.set(notifications);
+		//
 		if (isToast) {
 			showToast = true;
 			toastMessage = `Offer for product ${offer.productTitle} was ${action}ed successfully`;
@@ -112,6 +123,14 @@
 				}
 			}
 			userOffers.set(offers);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const updateSoldProductStatus = async (productId: number) => {
+		try {
+			await axios.patch(`/api/products/${productId}`, { sold: true });
 		} catch (error) {
 			console.error(error);
 		}
@@ -174,6 +193,7 @@
 								disabled={offer.status !== 'PENDING' ? true : false}
 								on:click={async () => {
 									await updateOfferStatus(offer.id, 'ACCEPTED');
+									if (product) await updateSoldProductStatus(product.id);
 									handleNotification(offer, 'Accept');
 								}}>Accept</button
 							>

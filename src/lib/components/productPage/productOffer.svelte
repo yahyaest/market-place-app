@@ -5,6 +5,7 @@
 	import Cookies from 'js-cookie';
 	import { getCurrentUserAvatar } from '../../../service/gateway';
 	import { addProductOwnerNotification, addUserNotification } from '../../../service/notification';
+	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../../store';
 
 	export let data: any;
 	export let offer: any;
@@ -91,7 +92,7 @@
 				seen: false
 			};
 
-			await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
+			return await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
 		} catch (error) {
 			console.error(error);
 		}
@@ -112,7 +113,7 @@
 					: `You get an offer from ${user.username} for product ${productTitle} with amount of ${offerAmount} TND`
 			};
 
-			await addProductOwnerNotification(
+			return await addProductOwnerNotification(
 				notificationBaseUrl,
 				gatewayBaseUrl,
 				appSigninPayload,
@@ -130,8 +131,15 @@
 		}
 		try {
 			await postOrUpdateOffer();
-			await createUserNotification(offer);
-			await createProductOwnerNotification(offer);
+			const userNotification = await createUserNotification(offer);
+			const productOwnerNotification = await createProductOwnerNotification(offer);
+			// Update Navbar State
+			navbarNotificationsCount.update((value) => value + 1);
+			let notifications = [...$navbarLatestUserNotifications];
+			notifications.pop();
+			notifications.unshift(userNotification);
+			navbarLatestUserNotifications.set(notifications)
+			//
 			closeDialog();
 			handleToast();
 			if (pageSource === 'CartPage') {
@@ -149,7 +157,8 @@
 {#if pageSource === 'CartPage' || !product.sold}
 	<button
 		class={`btn ${pageSource === 'CartPage' ? 'btn-warning btn-xs' : 'btn-secondary'}`}
-		disabled={(offer ? (offer.status === 'ACCEPTED' ? true : false) : false) || offer.productIsSold}
+		disabled={(offer ? (offer.status === 'ACCEPTED' ? true : false) : false) ||
+			(offer ? offer.productIsSold : false)}
 		on:click={() => {
 			const modal = document.getElementById(`my_modal_${offer ? offer.id : 0}`);
 			if (modal) {

@@ -5,6 +5,7 @@
 	import { writable, type Writable } from 'svelte/store';
 	import { addProductOwnerNotification, addUserNotification } from '../../service/notification';
 	import Cookies from 'js-cookie';
+	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../store';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
@@ -46,7 +47,7 @@
 				seen: false
 			};
 
-			await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
+			return await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
 		} catch (error) {
 			console.error(error);
 		}
@@ -64,7 +65,7 @@
 				message: `${user.username} has deleted his offer for product ${offer.productTitle}`
 			};
 
-			await addProductOwnerNotification(
+			return await addProductOwnerNotification(
 				notificationBaseUrl,
 				gatewayBaseUrl,
 				appSigninPayload,
@@ -74,6 +75,20 @@
 		} catch (error) {
 			console.error(error);
 		}
+	};
+
+	const handleSubmit = async (offer: any) => {
+		await deleteOffer(offer.id);
+		const userNotification = await createUserNotification(offer);
+		const productOwnerNotification = await createProductOwnerNotification(offer);
+		// Update Navbar State
+		navbarNotificationsCount.update((value) => value + 1);
+		let notifications = [...$navbarLatestUserNotifications];
+		notifications.pop();
+		notifications.unshift(userNotification);
+		navbarLatestUserNotifications.set(notifications);
+		//
+		handleNotification(offer);
 	};
 </script>
 
@@ -169,10 +184,7 @@
 								class="btn btn-error btn-xs"
 								disabled={offer.status === 'ACCEPTED' ? true : false || offer.productIsSold}
 								on:click={async () => {
-									await deleteOffer(offer.id);
-									await createUserNotification(offer);
-									await createProductOwnerNotification(offer);
-									handleNotification(offer);
+									handleSubmit(offer);
 								}}>Delete</button
 							>
 						</th>

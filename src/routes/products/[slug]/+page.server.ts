@@ -39,7 +39,7 @@ export const load = (async ({ params, cookies }) => {
 		if (user) {
 			const username = user.email;
 			return await prisma.offer.findUnique({
-				where: { username_productId: { username, productId }, status: 'PENDING' }
+				where: { username_productId: { username, productId }, status: {in:['PENDING', 'REJECTED']} }
 			});
 		} else return null;
 	};

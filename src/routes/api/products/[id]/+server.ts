@@ -20,3 +20,28 @@ export const GET: RequestHandler = async ({ params }): Promise<Response> => {
 		throw error(404, { message: 'Products not found' });
 	}
 };
+
+export const PATCH: RequestHandler = async (request): Promise<Response> => {
+	try {
+		const { id } = request.params;
+		const body = await request.request.json();
+
+		const product = await prisma.product.findUnique({
+			where: { id: +id }
+		});
+
+		if (!product) {
+			return json({ message: 'Product not found' }, { status: 404 });
+		}
+
+		const updatedProduct = await prisma.product.update({
+			where: { id: +id },
+			data: body
+		});
+
+		return json({ product: updatedProduct }, { status: 200 });
+	} catch (err) {
+		console.error(err);
+		throw error(400, { message: 'Failed to update product' });
+	}
+};

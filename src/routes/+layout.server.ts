@@ -25,20 +25,18 @@ export const load: PageServerLoad = (async ({ cookies }: any) => {
 			offerItemsValue = offerItemsValue + offer.amount;
 		}
 		//User Notifications
-		const userNotifications: Notification[] = await getUserNotifications(
+		const allUserNotifications: Notification[] = await getUserNotifications(
 			notificationBaseUrl,
 			token,
 			user.email
 		);
-		const notificationsNumber = userNotifications.filter(
+		const notificationsNumber = allUserNotifications.filter(
 			(notification) => notification.seen === false
 		).length;
-		const latestUserNotifications = userNotifications
+		const latestUserNotifications = allUserNotifications
 			.filter((notification) => notification.seen === false)
 			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			.slice(0, 5);
-
-		console.log(latestUserNotifications[0].createdAt);
 
 		return {
 			gatewayBaseUrl,
