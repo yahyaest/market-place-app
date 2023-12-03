@@ -244,7 +244,7 @@
 				</ul>
 			</div>
 		{:else}
-			<button class="btn btn-outline btn-sm">Login</button>
+			<button class="btn btn-outline btn-sm" on:click={()=> goto("/auth/login")}>Login</button>
 		{/if}
 	</div>
 </div>
