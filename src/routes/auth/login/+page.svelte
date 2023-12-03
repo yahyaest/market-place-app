@@ -3,6 +3,7 @@
 	import Cookies from "js-cookie";
 	import { getCurrentUser, login } from "../../../service/gateway";
 	import type { PageData } from "./$types";
+	import { navbarIsLogin } from "../../../store";
 
 	export let data: PageData;
 
@@ -17,6 +18,7 @@
       } else {
         const user = await getCurrentUser(data.gatewayBaseUrl as string);
         Cookies.set("user", JSON.stringify(user));
+								navbarIsLogin.set(true)
         goto("/");
       }
     } catch (error: any) {

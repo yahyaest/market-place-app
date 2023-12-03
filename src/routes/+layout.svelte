@@ -12,7 +12,8 @@
 		navbarNotificationsCount,
 		navbarLatestUserNotifications,
 		navbarOfferItemsNumber,
-		navbarOfferItemsValue
+		navbarOfferItemsValue,
+		navbarIsLogin
 	} from '../store';
 
 	export let data;
@@ -26,6 +27,7 @@
 	const offerItemsNumber = data.offerItemsNumber;
 	const offerItemsValue = data.offerItemsValue;
 
+	navbarIsLogin.set($user ? true : false);
 	navbarNotificationsCount.set(notificationsNumber);
 	navbarLatestUserNotifications.set(latestUserNotifications);
 	navbarOfferItemsNumber.set(offerItemsNumber);
@@ -67,6 +69,7 @@
 		Cookies.remove('user');
 		Cookies.remove('token');
 		user.set(null);
+		navbarIsLogin.set(false)
 		goto('/');
 	};
 
@@ -109,7 +112,7 @@
 			</ul>
 		</div>
 
-		{#if $user}
+		{#if $navbarIsLogin}
 			<div class="flex-none">
 				<div class="dropdown dropdown-end">
 					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
@@ -152,7 +155,7 @@
 			</div>
 		{/if}
 
-		{#if $user}
+		{#if $navbarIsLogin}
 			<div class="flex-none">
 				<ul class="dropdown dropdown-end">
 					<li>
@@ -178,7 +181,7 @@
 			</div>
 		{/if}
 
-		{#if $user}
+		{#if $navbarIsLogin}
 			<div class="flex-none">
 				<ul class="dropdown dropdown-end">
 					<li>
@@ -239,7 +242,7 @@
 			</div>
 		{/if}
 
-		{#if $user}
+		{#if $navbarIsLogin}
 			<div class="flex-none">
 				<ul class="dropdown dropdown-end">
 					<li>

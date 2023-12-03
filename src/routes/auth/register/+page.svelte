@@ -3,6 +3,7 @@
 	import { getCurrentUser, register, uploadImage } from "../../../service/gateway";
 	import { goto } from "$app/navigation";
 	import type { PageData } from "./$types";
+	import { navbarIsLogin } from "../../../store";
 
 	export let data: PageData;
 
@@ -36,6 +37,7 @@
         Cookies.set("user", JSON.stringify(user));
         // upload image
         await uploadImage(data.gatewayBaseUrl as string, file, user?.email as string);
+								navbarIsLogin.set(true)
         goto("/");
       }
     } catch (error: any) {
