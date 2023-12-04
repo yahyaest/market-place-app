@@ -36,7 +36,8 @@ export const load: PageServerLoad = (async ({ cookies }: any) => {
 		const latestUserNotifications = allUserNotifications
 			.filter((notification) => notification.seen === false)
 			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-			.slice(0, 5);
+			.slice(0, 5)
+			.map((notification) => ({ ...notification, isHovered: false }));
 
 		return {
 			gatewayBaseUrl,

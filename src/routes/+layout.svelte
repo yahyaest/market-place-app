@@ -77,9 +77,28 @@
 		}
 	};
 
-	const handleNotificationHover = async (notificationId: number) => {
-		const payload = { seen: true };
-		await updateNotification(notificationBaseUrl, data.token, notificationId, payload);
+	const handleNotificationMouseOver = async (
+		notificationId: number,
+		notificationIsHovered: boolean |undefined
+	) => {
+		if (!notificationIsHovered) {
+			const payload = { seen: true };
+			await updateNotification(notificationBaseUrl, data.token, notificationId, payload);
+			let notifications = [...$navbarLatestUserNotifications];
+			notifications.filter((e) => e.id === notificationId)[0].seen = true;
+			navbarLatestUserNotifications.set(notifications);
+		}
+	};
+
+	const handleNotificationMouseOut = async (
+		notificationId: number,
+		notificationIsHovered: boolean |undefined
+	) => {
+		if (!notificationIsHovered) {
+			let notifications = [...$navbarLatestUserNotifications];
+			notifications.filter((e) => e.id === notificationId)[0].isHovered = true;
+			navbarLatestUserNotifications.set(notifications);
+		}
 	};
 
 	const logout = () => {
@@ -233,11 +252,17 @@
 							{#each $navbarLatestUserNotifications as notification}
 								<li
 									on:mouseover={() => {
-										//	if (!notification.seen) handleNotificationHover(notification.id);
+										if (!notification.seen) {
+											handleNotificationMouseOver(notification.id, notification.isHovered);
+										}
 									}}
-									on:focus={() => {
-										//	if (!notification.seen) handleNotificationHover(notification.id);
+									on:mouseout={() => {
+										if (!notification.seen) {
+											handleNotificationMouseOut(notification.id, notification.isHovered);
+										}
 									}}
+									on:focus={() => {}}
+									on:blur={() => {}}
 								>
 									<div class="flex flex-row justify-between">
 										<img
