@@ -6,8 +6,16 @@
 	import Cookies from 'js-cookie';
 	import { getCurrentUserAvatar } from '../../../service/gateway';
 	import { addProductOwnerNotification, addUserNotification } from '../../../service/notification';
-	import { navbarLatestUserNotifications, navbarNotificationsCount, navbarOfferItemsNumber, navbarOfferItemsValue } from '../../../store';
+	import {
+		navbarLatestUserNotifications,
+		navbarNotificationsCount,
+		navbarOfferItemsNumber,
+		navbarOfferItemsValue
+	} from '../../../store';
 	import type { Notification } from '../../../models/notification';
+	import { io } from 'socket.io-client';
+
+	const socket = io();
 
 	export let data: any;
 	export let offer: Offer;
@@ -128,15 +136,21 @@
 		}
 	};
 
-	const updateNavbarState = (notification:Notification) => {
+	const updateNavbarState = (notification: Notification, distantNotification: Notification) => {
 		navbarNotificationsCount.update((value) => value + 1);
-			let notifications = [...$navbarLatestUserNotifications];
-			notifications.pop();
-			notifications.unshift(notification);
-			navbarLatestUserNotifications.set(notifications)
-			navbarOfferItemsNumber.update((value) => value + 1);
-			navbarOfferItemsValue.update((value) => value - intialOfferAmount + offerAmount);
-	}
+		let notifications = [...$navbarLatestUserNotifications];
+		notifications.pop();
+		notifications.unshift(notification);
+		navbarLatestUserNotifications.set(notifications);
+		navbarOfferItemsNumber.update((value) => value + 1);
+		navbarOfferItemsValue.update((value) => value - intialOfferAmount + offerAmount);
+		// Update distant user navber with websoket
+		socket.emit('updateNavbarNotificatinsFromClient', {
+			toUser: distantNotification.userEmail,
+			notificationNumberToAdd: 1,
+			notification: distantNotification
+		});
+	};
 
 	const handleSubmit = async () => {
 		if (!user) {
@@ -146,7 +160,7 @@
 			await postOrUpdateOffer();
 			const userNotification = await createUserNotification(offer);
 			const productOwnerNotification = await createProductOwnerNotification(offer);
-			updateNavbarState(userNotification)
+			updateNavbarState(userNotification, productOwnerNotification);
 			closeDialog();
 			handleToast();
 			if (pageSource === 'CartPage') {

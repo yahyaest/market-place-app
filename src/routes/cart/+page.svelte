@@ -8,6 +8,9 @@
 	import { navbarLatestUserNotifications, navbarNotificationsCount, navbarOfferItemsNumber, navbarOfferItemsValue } from '../../store';
 	import type { Offer } from '../../models/offer';
 	import type { Notification } from '../../models/notification';
+	import { io } from 'socket.io-client';
+
+const socket = io();
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
@@ -79,7 +82,7 @@
 		}
 	};
 
-	const updateNavbarState = (notification:Notification, offer: Offer) => {
+	const updateNavbarState = (notification:Notification, distantNotification: Notification, offer: Offer) => {
 		navbarNotificationsCount.update((value) => value + 1);
 		let notifications = [...$navbarLatestUserNotifications];
 		notifications.pop();
@@ -87,13 +90,19 @@
 		navbarLatestUserNotifications.set(notifications);
 		navbarOfferItemsNumber.update((value) => value - 1);
 		navbarOfferItemsValue.update((value) => value - offer.amount);
+		// Update distant user navber with websoket
+		socket.emit('updateNavbarNotificatinsFromClient', {
+			toUser: distantNotification.userEmail,
+			notificationNumberToAdd: 1,
+			notification: distantNotification
+		});
 	}
 
-	const handleSubmit = async (offer: Offer) => {
+	const handleDeleteOffer = async (offer: Offer) => {
 		await deleteOffer(offer.id);
 		const userNotification = await createUserNotification(offer);
 		const productOwnerNotification = await createProductOwnerNotification(offer);
-		updateNavbarState(userNotification, offer)
+		updateNavbarState(userNotification, productOwnerNotification, offer)
 		handleToast(offer);
 	};
 </script>
@@ -190,7 +199,7 @@
 								class="btn btn-error btn-xs"
 								disabled={offer.status === 'ACCEPTED' ? true : false || offer.productIsSold}
 								on:click={async () => {
-									handleSubmit(offer);
+									handleDeleteOffer(offer);
 								}}>Delete</button
 							>
 						</th>
