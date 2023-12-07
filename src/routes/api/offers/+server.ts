@@ -1,12 +1,18 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import prisma from '$lib/prisma';
+import type { User } from '../../../models/user';
 
 export const GET: RequestHandler = async (request): Promise<Response> => {
 	try {
 		const url = new URL(request.url);
 		const searchParams = url.searchParams;
 
+		const token = request.cookies.get('token');
+		if (!token) {
+			return json({ message: 'Not Authenticated. No token was provided' }, { status: 401 });
+		}
+		const user: User = JSON.parse(request.cookies.get('user') as string);
 		// Transform URLSearchParams into a key-value object
 		const queryParams: any = {};
 		for (const [key, value] of searchParams.entries()) {
@@ -18,6 +24,10 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 		}
 		if (queryParams['productId']) {
 			queryParams['productId'] = +queryParams['productId'];
+		}
+
+		if (user.role !== 'ADMIN') {
+			queryParams['username'] = user.email;
 		}
 
 		let offers;
@@ -37,9 +47,17 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request }): Promise<Response> => {
+export const POST: RequestHandler = async ({ request, cookies }): Promise<Response> => {
 	try {
+		const token = cookies.get('token');
+		if (!token) {
+			return json({ message: 'Not Authenticated. No token was provided' }, { status: 401 });
+		}
 		const body = await request.json();
+		console.log(body.productId);
+		if (!body.productId || !body.username) {
+			throw error(400, { message: 'Failed to create offer' });
+		}
 		const existingOffer = await prisma.offer.findMany({
 			where: { productId: body.productId, username: body.username }
 		});
