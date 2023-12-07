@@ -7,6 +7,11 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 		const url = new URL(request.url);
 		const searchParams = url.searchParams;
 
+		const token = request.cookies.get('token');
+		if (!token) {
+			return json({ message: 'Not Authenticated. No token was provided' }, { status: 401 });
+		}
+
 		// Transform URLSearchParams into a key-value object
 		const queryParams: any = {};
 		for (const [key, value] of searchParams.entries()) {

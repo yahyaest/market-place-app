@@ -43,8 +43,12 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request }): Promise<Response> => {
+export const POST: RequestHandler = async ({ request, cookies }): Promise<Response> => {
 	try {
+		const token = cookies.get('token');
+		if (!token) {
+			return json({ message: 'Not Authenticated. No token was provided' }, { status: 401 });
+		}
 		const body = await request.json();
 		const product = await prisma.product.create({
 			data: body

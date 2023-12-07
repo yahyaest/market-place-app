@@ -10,6 +10,10 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 		const url = new URL(request.url);
 		const searchParams = url.searchParams;
 
+		const token = request.cookies.get('token');
+		if (!token) {
+			return json({ message: 'Not Authenticated. No token was provided' }, { status: 401 });
+		}
 		// Transform URLSearchParams into a key-value object
 		const queryParams: any = {};
 		for (const [key, value] of searchParams.entries()) {
@@ -43,9 +47,6 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 export const POST: RequestHandler = async ({ request }): Promise<Response> => {
 	try {
 		const body = await request.formData();
-
-		console.log('body : ', body);
-
 		if (!body || !body.get('file')) {
 			return json({
 				status: 400,

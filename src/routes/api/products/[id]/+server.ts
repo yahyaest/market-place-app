@@ -23,6 +23,11 @@ export const GET: RequestHandler = async ({ params }): Promise<Response> => {
 
 export const PATCH: RequestHandler = async (request): Promise<Response> => {
 	try {
+		const token = request.cookies.get('token');
+		if (!token) {
+			return json({ message: 'Not Authenticated. No token was provided' }, { status: 401 });
+		}
+
 		const { id } = request.params;
 		const body = await request.request.json();
 
