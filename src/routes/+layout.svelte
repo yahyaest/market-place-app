@@ -87,6 +87,7 @@
 			let notifications = [...$navbarLatestUserNotifications];
 			notifications.filter((e) => e.id === notificationId)[0].seen = true;
 			navbarLatestUserNotifications.set(notifications);
+			navbarNotificationsCount.update((value) => value - 1);
 		}
 	};
 
