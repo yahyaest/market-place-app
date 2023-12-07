@@ -79,7 +79,7 @@
 
 	const handleNotificationMouseOver = async (
 		notificationId: number,
-		notificationIsHovered: boolean |undefined
+		notificationIsHovered: boolean | undefined
 	) => {
 		if (!notificationIsHovered) {
 			const payload = { seen: true };
@@ -92,7 +92,7 @@
 
 	const handleNotificationMouseOut = async (
 		notificationId: number,
-		notificationIsHovered: boolean |undefined
+		notificationIsHovered: boolean | undefined
 	) => {
 		if (!notificationIsHovered) {
 			let notifications = [...$navbarLatestUserNotifications];
@@ -249,38 +249,40 @@
 							class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-[32rem]"
 						>
 							<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
-							{#each $navbarLatestUserNotifications as notification}
-								<li
-									on:mouseover={() => {
-										if (!notification.seen) {
-											handleNotificationMouseOver(notification.id, notification.isHovered);
-										}
-									}}
-									on:mouseout={() => {
-										if (!notification.seen) {
-											handleNotificationMouseOut(notification.id, notification.isHovered);
-										}
-									}}
-									on:focus={() => {}}
-									on:blur={() => {}}
-								>
-									<div class="flex flex-row justify-between">
-										<img
-											class="btn btn-ghost btn-circle avatar"
-											src={`${gatewayBaseUrl}/${notification.userImage}`}
-											alt={notification.userImage}
-										/>
-										<div class="w-80">
-											<h3 class="text-lg text-center font-bold mb-2">{notification.title}</h3>
-											<p class="ml-8 text-xs">{notification.message}</p>
+							{#if $navbarLatestUserNotifications}
+								{#each $navbarLatestUserNotifications as notification}
+									<li
+										on:mouseover={() => {
+											if (!notification.seen) {
+												handleNotificationMouseOver(notification.id, notification.isHovered);
+											}
+										}}
+										on:mouseout={() => {
+											if (!notification.seen) {
+												handleNotificationMouseOut(notification.id, notification.isHovered);
+											}
+										}}
+										on:focus={() => {}}
+										on:blur={() => {}}
+									>
+										<div class="flex flex-row justify-between">
+											<img
+												class="btn btn-ghost btn-circle avatar"
+												src={`${gatewayBaseUrl}/${notification.userImage}`}
+												alt={notification.userImage}
+											/>
+											<div class="w-80">
+												<h3 class="text-lg text-center font-bold mb-2">{notification.title}</h3>
+												<p class="ml-8 text-xs">{notification.message}</p>
+											</div>
+											<span class="w-20 text-xs">{formatRelativeTime(notification.createdAt)}</span>
+											{#if !notification.seen}
+												<span class="badge badge-xs badge-primary indicator-item" />
+											{/if}
 										</div>
-										<span class="w-20 text-xs">{formatRelativeTime(notification.createdAt)}</span>
-										{#if !notification.seen}
-											<span class="badge badge-xs badge-primary indicator-item" />
-										{/if}
-									</div>
-								</li>
-							{/each}
+									</li>
+								{/each}
+							{/if}
 							<li class="btn btn-ghost"><a href="/">See all</a></li>
 						</ul>
 					</li>

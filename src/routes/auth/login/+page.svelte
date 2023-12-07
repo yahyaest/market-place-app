@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
 	import Cookies from "js-cookie";
 	import { getCurrentUser, login } from "../../../service/gateway";
 	import type { PageData } from "./$types";
@@ -19,7 +18,7 @@
         const user = await getCurrentUser(data.gatewayBaseUrl as string);
         Cookies.set("user", JSON.stringify(user));
 								navbarIsLogin.set(true)
-        goto("/");
+        window.location.href = "/";
       }
     } catch (error: any) {
       console.log(error.message);

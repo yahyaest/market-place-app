@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Cookies from "js-cookie";
 	import { getCurrentUser, register, uploadImage } from "../../../service/gateway";
-	import { goto } from "$app/navigation";
 	import type { PageData } from "./$types";
 	import { navbarIsLogin } from "../../../store";
 
@@ -38,7 +37,7 @@
         // upload image
         await uploadImage(data.gatewayBaseUrl as string, file, user?.email as string);
 								navbarIsLogin.set(true)
-        goto("/");
+        window.location.href = "/";
       }
     } catch (error: any) {
       console.log(error.message);
