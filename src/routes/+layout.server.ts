@@ -25,20 +25,25 @@ export const load: PageServerLoad = (async ({ cookies }: any) => {
 			offerItemsValue = offerItemsValue + offer.amount;
 		}
 		//User Notifications
-		const allUserNotifications: Notification[] = await getUserNotifications(
-			notificationBaseUrl,
-			token,
-			user.email
-		);
-		const notificationsNumber = allUserNotifications.filter(
-			(notification) => notification.seen === false
-		).length;
-		const latestUserNotifications = allUserNotifications
-			.filter((notification) => notification.seen === false)
-			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-			.slice(0, 5)
-			.map((notification) => ({ ...notification, isHovered: false }));
-
+		let notificationsNumber = 0;
+		let latestUserNotifications : Notification[] = [];
+		try {
+			const allUserNotifications: Notification[] = await getUserNotifications(
+				notificationBaseUrl,
+				token,
+				user.email
+			);
+			notificationsNumber = allUserNotifications.filter(
+				(notification) => notification.seen === false
+			).length;
+			latestUserNotifications = allUserNotifications
+				.filter((notification) => notification.seen === false)
+				.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+				.slice(0, 5)
+				.map((notification) => ({ ...notification, isHovered: false }));
+		} catch (error) {
+			console.error('Failed getting user notifications');
+		}
 		return {
 			gatewayBaseUrl,
 			notificationBaseUrl,
