@@ -284,7 +284,11 @@
 									</li>
 								{/each}
 							{/if}
-							<li class="btn btn-ghost"><a href="/">See all</a></li>
+							<li class="btn btn-ghost">
+								<button class="w-full flex justify-center" on:click={() => goto(`/notifications`)}>
+									<p>	See All</p>
+								</button>
+							</li>
 						</ul>
 					</li>
 				</ul>
