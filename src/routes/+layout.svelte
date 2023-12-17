@@ -60,12 +60,8 @@
 		if (!notificationIsHovered) {
 			const payload = { seen: true };
 			await updateNotification(notificationBaseUrl, data.token, notificationId, payload);
-			let notifications = [...$navbarAllUserNotifications];
+			let notifications = [...$navbarLatestUserNotifications];
 			notifications.filter((e) => e.id === notificationId)[0].seen = true;
-			notifications = notifications
-				.filter((e) => !e.seen)
-				.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-				.slice(0, 5);
 			navbarLatestUserNotifications.set(notifications);
 			navbarNotificationsCount.update((value) => value - 1);
 		}
@@ -229,7 +225,6 @@
 						<ul
 							class="mt-3 ml-10 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-[32rem]"
 						>
-							<!-- Notifications icons with unread notif number and notifs dropdown (show last 5 notifs with unread priority , unread one have text font bold / on hover patch to seen to true) -->
 							{#if $navbarLatestUserNotifications}
 								{#each $navbarLatestUserNotifications as notification}
 									<li

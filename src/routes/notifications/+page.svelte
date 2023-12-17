@@ -4,7 +4,7 @@
 	import type { Notification } from '../../models/notification';
 	import type { PageData } from './$types';
 	import { formatRelativeTime } from '$lib/utils';
-	import { updateNotification } from '../../service/notification';
+	import { deleteNotification, updateNotification } from '../../service/notification';
 	import {
 		navbarAllUserNotifications,
 		navbarLatestUserNotifications,
@@ -33,6 +33,26 @@
 		let navbarNotifications = [...$navbarAllUserNotifications];
 		navbarNotifications.filter((e) => e.id === notificationId)[0].seen = true;
 		navbarNotifications = navbarNotifications
+			.filter((e) => !e.seen)
+			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+			.slice(0, 5);
+		navbarLatestUserNotifications.set(navbarNotifications);
+		navbarNotificationsCount.update((value) => value - 1);
+	};
+
+	const handleNotificationDelete = async (notificationId: number) => {
+		await deleteNotification(data.notificationBaseUrl, data.token, notificationId);
+		// Update page Notifications state
+		console.log(notificationId);
+		let notifications = [...$pageNotifications];
+		notifications = notifications.filter((e) => e.id !== notificationId);
+		pageNotifications.set(notifications);
+		// Update all Notifications state
+		let navbarNotifications = [...$navbarAllUserNotifications];
+		navbarAllUserNotifications.set(navbarNotifications.filter((e) => e.id !== notificationId));
+		// Update navbar Notifications state
+		navbarNotifications = navbarNotifications
+			.filter((e) => e.id !== notificationId)
 			.filter((e) => !e.seen)
 			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			.slice(0, 5);
@@ -80,6 +100,12 @@
 						{:else}
 							<td />
 						{/if}
+						<td>
+							<button
+								class="btn btn-accent btn-xs"
+								on:click={() => handleNotificationDelete(notification.id)}>Delete</button
+							>
+						</td>
 					</tr>
 				{/each}
 			</tbody>

@@ -124,3 +124,30 @@ export const updateNotification = async (
 		console.error('Failed to update notification :', error);
 	}
 };
+
+export const deleteNotification = async (
+	baseUrl: string,
+	token: string,
+	notificationId: number
+) => {
+	try {
+		const notificationBaseUrl = baseUrl;
+		const notificationUrl = `${notificationBaseUrl}/api/notifications/${notificationId}`;
+
+		if (!token) {
+			throw Error('No token was provided. Failed to post notification');
+		}
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.delete(notificationUrl, options);
+		const notification = response.data;
+
+		return notification;
+	} catch (error) {
+		console.error('Failed to delete notification :', error);
+	}
+};
