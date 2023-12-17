@@ -13,9 +13,11 @@
 		navbarLatestUserNotifications,
 		navbarOfferItemsNumber,
 		navbarOfferItemsValue,
-		navbarIsLogin
+		navbarIsLogin,
+		navbarAllUserNotifications
 	} from '../store';
 	import { io } from 'socket.io-client';
+	import { formatRelativeTime } from '$lib/utils';
 
 	const socket = io();
 
@@ -47,35 +49,9 @@
 	navbarIsLogin.set($user ? true : false);
 	navbarNotificationsCount.set(notificationsNumber);
 	navbarLatestUserNotifications.set(latestUserNotifications);
+	navbarAllUserNotifications.set(data.allUserNotifications);
 	navbarOfferItemsNumber.set(offerItemsNumber);
 	navbarOfferItemsValue.set(offerItemsValue);
-
-	const formatRelativeTime = (dateString: string | Date) => {
-		const inputDate = new Date(dateString);
-		const currentDate = new Date();
-
-		const timeDifference = currentDate - inputDate;
-		const secondsDifference = Math.floor(timeDifference / 1000);
-		const minutesDifference = Math.floor(secondsDifference / 60);
-		const hoursDifference = Math.floor(minutesDifference / 60);
-		const daysDifference = Math.floor(hoursDifference / 24);
-		const monthsDifference = Math.floor(daysDifference / 30.44);
-		const yearsDifference = Math.floor(monthsDifference / 12);
-
-		if (yearsDifference > 0) {
-			return `${yearsDifference} year${yearsDifference !== 1 ? 's' : ''} ago`;
-		} else if (monthsDifference > 0) {
-			return `${monthsDifference} month${monthsDifference !== 1 ? 's' : ''} ago`;
-		} else if (daysDifference > 0) {
-			return `${daysDifference} day${daysDifference !== 1 ? 's' : ''} ago`;
-		} else if (hoursDifference > 0) {
-			return `${hoursDifference} hour${hoursDifference !== 1 ? 's' : ''} ago`;
-		} else if (minutesDifference > 0) {
-			return `${minutesDifference} minute${minutesDifference !== 1 ? 's' : ''} ago`;
-		} else {
-			return `${secondsDifference} second${secondsDifference !== 1 ? 's' : ''} ago`;
-		}
-	};
 
 	const handleNotificationMouseOver = async (
 		notificationId: number,
@@ -84,8 +60,12 @@
 		if (!notificationIsHovered) {
 			const payload = { seen: true };
 			await updateNotification(notificationBaseUrl, data.token, notificationId, payload);
-			let notifications = [...$navbarLatestUserNotifications];
+			let notifications = [...$navbarAllUserNotifications];
 			notifications.filter((e) => e.id === notificationId)[0].seen = true;
+			notifications = notifications
+				.filter((e) => !e.seen)
+				.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+				.slice(0, 5);
 			navbarLatestUserNotifications.set(notifications);
 			navbarNotificationsCount.update((value) => value - 1);
 		}
@@ -286,7 +266,7 @@
 							{/if}
 							<li class="btn btn-ghost">
 								<button class="w-full flex justify-center" on:click={() => goto(`/notifications`)}>
-									<p>	See All</p>
+									<p>See All</p>
 								</button>
 							</li>
 						</ul>

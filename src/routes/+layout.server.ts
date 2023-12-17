@@ -26,13 +26,10 @@ export const load: PageServerLoad = (async ({ cookies }: any) => {
 		}
 		//User Notifications
 		let notificationsNumber = 0;
-		let latestUserNotifications : Notification[] = [];
+		let allUserNotifications: Notification[] = [];
+		let latestUserNotifications: Notification[] = [];
 		try {
-			const allUserNotifications: Notification[] = await getUserNotifications(
-				notificationBaseUrl,
-				token,
-				user.email
-			);
+			allUserNotifications = await getUserNotifications(notificationBaseUrl, token, user.email);
 			notificationsNumber = allUserNotifications.filter(
 				(notification) => notification.seen === false
 			).length;
@@ -51,6 +48,7 @@ export const load: PageServerLoad = (async ({ cookies }: any) => {
 			token,
 			userImage,
 			notificationsNumber,
+			allUserNotifications,
 			latestUserNotifications,
 			offerItemsNumber,
 			offerItemsValue

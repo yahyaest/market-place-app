@@ -14,6 +14,7 @@ export const load: PageServerLoad = (async ({ cookies }: any) => {
 		let userNotifications: Notification[] = [];
 		try {
 			userNotifications = await getUserNotifications(notificationBaseUrl, token, user.email);
+			userNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 		} catch (error) {
 			console.error('Failed getting user notifications');
 		}
