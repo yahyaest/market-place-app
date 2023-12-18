@@ -13,14 +13,17 @@
 
 	export let data: PageData;
 	const user: Writable<User | null> = writable(data.user);
-	const userNotifications: Notification[] = data.userNotifications;
+	const userNotifications: Writable<Notification[]> = writable(data.userNotifications);
 
 	const pageSize: Writable<number> = writable(10);
-	const pageNumber = userNotifications ? Math.floor(userNotifications.length / $pageSize) + 1 : 1;
+	const pageNumber: Writable<number> = writable(
+		userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
+	);
 	const currentPage: Writable<number> = writable(1);
 	const pageNotifications: Writable<Notification[]> = writable(
-		userNotifications ? userNotifications.slice(0, $pageSize) : []
+		$userNotifications ? $userNotifications.slice(0, $pageSize) : []
 	);
+	const notificationsFilter: Writable<string> = writable('All');
 
 	const handleNotificationUpdate = async (notificationId: number) => {
 		const payload = { seen: true };
@@ -62,6 +65,40 @@
 </script>
 
 <div class="overflow-x-auto mx-auto w-full md:w-4/5">
+	<div role="tablist" class="tabs tabs-boxed my-5">
+		<button
+			role="tab"
+			class={`tab ${$notificationsFilter === 'All' ? 'tab-active' : ''}`}
+			on:click={() => {
+				notificationsFilter.set('All');
+				userNotifications.set(data.userNotifications);
+				pageNotifications.set(
+					$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
+				);
+				pageNumber.set(
+					userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
+				);
+			}}
+		>
+			All
+		</button>
+		<button
+			role="tab"
+			class={`tab ${$notificationsFilter !== 'All' ? 'tab-active' : ''}`}
+			on:click={() => {
+				notificationsFilter.set('Unread');
+				userNotifications.set($userNotifications.filter((notification) => !notification.seen));
+				pageNotifications.set(
+					$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
+				);
+				pageNumber.set(
+					userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
+				);
+			}}
+		>
+			Unread
+		</button>
+	</div>
 	{#if userNotifications}
 		<table class="table">
 			<tbody>
@@ -93,7 +130,7 @@
 						{#if !notification.seen}
 							<td>
 								<button
-									class="btn btn-secondary btn-xs"
+									class="btn btn-secondary btn-xs w-32"
 									on:click={() => handleNotificationUpdate(notification.id)}>Mark As Read</button
 								>
 							</td>
@@ -111,7 +148,7 @@
 			</tbody>
 		</table>
 		<div class="join my-10 flex justify-center">
-			{#each Array.from({ length: pageNumber }, (_, i) => i + 1) as pageIndex}
+			{#each Array.from({ length: $pageNumber }, (_, i) => i + 1) as pageIndex}
 				<button
 					class={`join-item btn ${
 						$currentPage === pageIndex
@@ -121,7 +158,7 @@
 					on:click={() => {
 						currentPage.set(pageIndex);
 						pageNotifications.set(
-							userNotifications.slice((pageIndex - 1) * $pageSize, pageIndex * $pageSize)
+							$userNotifications.slice((pageIndex - 1) * $pageSize, pageIndex * $pageSize)
 						);
 					}}>{pageIndex}</button
 				>
