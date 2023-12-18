@@ -88,11 +88,14 @@
 			on:click={() => {
 				notificationsFilter.set('Unread');
 				userNotifications.set($userNotifications.filter((notification) => !notification.seen));
-				pageNotifications.set(
-					$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
-				);
 				pageNumber.set(
 					userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
+				);
+				if ($currentPage > $pageNumber) {
+					currentPage.set($pageNumber);
+				}
+				pageNotifications.set(
+					$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
 				);
 			}}
 		>
