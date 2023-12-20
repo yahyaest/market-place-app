@@ -2,8 +2,13 @@ import type { Notification } from '../../models/notification';
 import type { User } from '../../models/user';
 import { getUserNotifications } from '../../service/notification';
 import type { PageServerLoad } from '../$types';
+import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = (async ({ cookies }: any) => {
+	if (!cookies.get('user')) {
+		throw redirect(307, `/auth/login`);
+	}
+
 	try {
 		const gatewayBaseUrl = process.env.GATEWAY_BASE_URL;
 		const notificationBaseUrl = process.env.NOTIFICATION_BASE_URL as string;

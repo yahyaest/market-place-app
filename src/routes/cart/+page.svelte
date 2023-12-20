@@ -5,12 +5,17 @@
 	import { writable, type Writable } from 'svelte/store';
 	import { addProductOwnerNotification, addUserNotification } from '../../service/notification';
 	import Cookies from 'js-cookie';
-	import { navbarLatestUserNotifications, navbarNotificationsCount, navbarOfferItemsNumber, navbarOfferItemsValue } from '../../store';
+	import {
+		navbarLatestUserNotifications,
+		navbarNotificationsCount,
+		navbarOfferItemsNumber,
+		navbarOfferItemsValue
+	} from '../../store';
 	import type { Offer } from '../../models/offer';
 	import type { Notification } from '../../models/notification';
 	import { io } from 'socket.io-client';
 
-const socket = io();
+	const socket = io();
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
@@ -49,6 +54,7 @@ const socket = io();
 				userId: user.id,
 				title: 'Delete Product Offer',
 				message: `You Deleted your offer to ${offer.productOwnerUsername} for product ${offer.productTitle}`,
+				sender: user.username,
 				seen: false
 			};
 
@@ -67,7 +73,8 @@ const socket = io();
 			const productOwnerNotificationPayload = {
 				title: 'Delete Product Offer',
 				userImage,
-				message: `${user.username} has deleted his offer for product ${offer.productTitle}`
+				message: `${user.username} has deleted his offer for product ${offer.productTitle}`,
+				sender: user.username
 			};
 
 			return await addProductOwnerNotification(
@@ -82,7 +89,11 @@ const socket = io();
 		}
 	};
 
-	const updateNavbarState = (notification:Notification, distantNotification: Notification, offer: Offer) => {
+	const updateNavbarState = (
+		notification: Notification,
+		distantNotification: Notification,
+		offer: Offer
+	) => {
 		navbarNotificationsCount.update((value) => value + 1);
 		let notifications = [...$navbarLatestUserNotifications];
 		notifications.pop();
@@ -96,13 +107,13 @@ const socket = io();
 			notificationNumberToAdd: 1,
 			notification: distantNotification
 		});
-	}
+	};
 
 	const handleDeleteOffer = async (offer: Offer) => {
 		await deleteOffer(offer.id);
 		const userNotification = await createUserNotification(offer);
 		const productOwnerNotification = await createProductOwnerNotification(offer);
-		updateNavbarState(userNotification, productOwnerNotification, offer)
+		updateNavbarState(userNotification, productOwnerNotification, offer);
 		handleToast(offer);
 	};
 </script>

@@ -100,6 +100,7 @@
 					: `You sent an offer to ${
 							productOwner ? productOwner : offer.productOwnerUsername
 					  } for product ${productTitle} with amount of ${offerAmount} TND`,
+				sender: user.username,
 				seen: false
 			};
 
@@ -121,7 +122,8 @@
 				userImage,
 				message: offer
 					? `${user.username} has changed his offer for product ${productTitle} with amount from ${offer.amount} to ${offerAmount} TND`
-					: `You get an offer from ${user.username} for product ${productTitle} with amount of ${offerAmount} TND`
+					: `You get an offer from ${user.username} for product ${productTitle} with amount of ${offerAmount} TND`,
+				sender: user.username
 			};
 
 			return await addProductOwnerNotification(

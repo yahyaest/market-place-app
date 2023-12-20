@@ -8,6 +8,7 @@ export interface Notification {
 	userId: number;
 	title: string;
 	message: string;
+	sender: string;
 	seen: boolean;
 	isHovered?: boolean
 }

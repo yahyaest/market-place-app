@@ -132,7 +132,7 @@
 			on:click={() => {
 				// Update page Notifications state
 				notificationsFilter.set('Unread');
-				if ($userNotifications.filter((e) => !e.seen).length > 0) {
+				if ($userNotifications && $userNotifications.filter((e) => !e.seen).length > 0) {
 					userNotifications.set($userNotifications.filter((notification) => !notification.seen));
 					pageNumber.set(setPageNumber($userNotifications));
 					if ($currentPage > $pageNumber) {
@@ -150,7 +150,7 @@
 			Unread
 		</button>
 
-		{#if $userNotifications.filter((e) => !e.seen).length > 0}
+		{#if $userNotifications && $userNotifications.filter((e) => !e.seen).length > 0}
 			<button
 				role="tab"
 				class={`tab`}
@@ -196,7 +196,7 @@
 								</div>
 								<div>
 									<div class="font-bold">{notification.title}</div>
-									<div class="text-sm opacity-50">United States</div>
+									<div class="text-sm opacity-50">{notification.sender}</div>
 								</div>
 							</div>
 						</td>
@@ -227,7 +227,7 @@
 				{/each}
 			</tbody>
 		</table>
-		{#if $userNotifications.filter((e) => !e.seen).length > 0 || $notificationsFilter !== 'Unread'}
+		{#if $userNotifications && $userNotifications.filter((e) => !e.seen).length > 0 || $notificationsFilter !== 'Unread'}
 			<div class="join my-10 flex justify-center">
 				{#each Array.from({ length: $pageNumber }, (_, i) => i + 1) as pageIndex}
 					<button

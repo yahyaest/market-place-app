@@ -9,10 +9,12 @@
 	import Cookies from 'js-cookie';
 	import { navbarLatestUserNotifications, navbarNotificationsCount } from '../../../../store';
 	import type { Notification } from '../../../../models/notification';
+	import type { User } from '../../../../models/user';
 
 	export let data: PageData;
 	const gatewayBaseUrl = data.gatewayBaseUrl as string;
 	const notificationBaseUrl = data.notificationBaseUrl as string;
+	const user : User = data.user
 	const userImage = data.userImage;
 	const product = data.product;
 	const userOffers: Writable<any[] | null> = writable(data.productOffers);
@@ -32,6 +34,7 @@
 				userId: offer.userId,
 				title: notification.title,
 				message: notification.message,
+				sender: user.username,
 				seen: false
 			};
 
@@ -56,7 +59,8 @@
 			const productOwnerNotificationPayload = {
 				title: notification.title,
 				userImage,
-				message: notification.message
+				message: notification.message,
+				sender: user.username,
 			};
 
 			return await addProductOwnerNotification(
