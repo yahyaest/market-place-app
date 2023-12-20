@@ -4,7 +4,12 @@
 	import type { Notification } from '../../models/notification';
 	import type { PageData } from './$types';
 	import { formatRelativeTime } from '$lib/utils';
-	import { deleteNotification, updateNotification } from '../../service/notification';
+	import {
+		deleteNotification,
+		getUserNotifications,
+		updateBulkNotification,
+		updateNotification
+	} from '../../service/notification';
 	import {
 		navbarAllUserNotifications,
 		navbarLatestUserNotifications,
@@ -12,13 +17,19 @@
 	} from '../../store';
 
 	export let data: PageData;
-	const user: Writable<User | null> = writable(data.user);
+	const setPageNumber = (data: any[]) => {
+		return data
+			? (data.length / $pageSize) % 1 === 0
+				? Math.floor(data.length / $pageSize)
+				: Math.floor(data.length / $pageSize) + 1
+			: 1;
+	};
+
+	const user: User = data.user;
 	const userNotifications: Writable<Notification[]> = writable(data.userNotifications);
 
 	const pageSize: Writable<number> = writable(10);
-	const pageNumber: Writable<number> = writable(
-		userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
-	);
+	const pageNumber: Writable<number> = writable(setPageNumber($userNotifications));
 	const currentPage: Writable<number> = writable(1);
 	const pageNotifications: Writable<Notification[]> = writable(
 		$userNotifications ? $userNotifications.slice(0, $pageSize) : []
@@ -26,16 +37,32 @@
 	const notificationsFilter: Writable<string> = writable('All');
 
 	const handleNotificationUpdate = async (notificationId: number) => {
+		// api call
 		const payload = { seen: true };
 		await updateNotification(data.notificationBaseUrl, data.token, notificationId, payload);
+		let notificationsResponse = await getUserNotifications(
+			data.notificationBaseUrl,
+			data.token,
+			user.email
+		);
+		notificationsResponse.sort((a: any, b: any) => new Date(b.createdAt) - new Date(a.createdAt));
 		// Update page Notifications state
+		userNotifications.set(notificationsResponse);
 		let notifications = [...$pageNotifications];
 		notifications.filter((e) => e.id === notificationId)[0].seen = true;
 		pageNotifications.set(notifications);
+		if ($notificationsFilter === 'Unread') {
+			userNotifications.set(notificationsResponse.filter((e: any) => !e.seen));
+			pageNumber.set(setPageNumber($userNotifications));
+			if ($currentPage > $pageNumber) {
+				currentPage.set($pageNumber);
+			}
+			pageNotifications.set(
+				$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
+			);
+		}
 		// Update navbar Notifications state
-		let navbarNotifications = [...$navbarAllUserNotifications];
-		navbarNotifications.filter((e) => e.id === notificationId)[0].seen = true;
-		navbarNotifications = navbarNotifications
+		const navbarNotifications = $userNotifications
 			.filter((e) => !e.seen)
 			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			.slice(0, 5);
@@ -44,23 +71,34 @@
 	};
 
 	const handleNotificationDelete = async (notificationId: number) => {
+		const isUnreadNotification = $userNotifications.filter((e) => e.id === notificationId)[0].seen;
+		// api call
 		await deleteNotification(data.notificationBaseUrl, data.token, notificationId);
+		let notificationsResponse = await getUserNotifications(
+			data.notificationBaseUrl,
+			data.token,
+			user.email
+		);
+		notificationsResponse.sort((a: any, b: any) => new Date(b.createdAt) - new Date(a.createdAt));
 		// Update page Notifications state
-		console.log(notificationId);
-		let notifications = [...$pageNotifications];
-		notifications = notifications.filter((e) => e.id !== notificationId);
-		pageNotifications.set(notifications);
-		// Update all Notifications state
-		let navbarNotifications = [...$navbarAllUserNotifications];
-		navbarAllUserNotifications.set(navbarNotifications.filter((e) => e.id !== notificationId));
+		userNotifications.set(notificationsResponse);
+		pageNumber.set(setPageNumber($userNotifications));
+		if ($currentPage > $pageNumber) {
+			currentPage.set($pageNumber);
+		}
+		pageNotifications.set(
+			$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
+		);
 		// Update navbar Notifications state
-		navbarNotifications = navbarNotifications
+		const navbarNotifications = $userNotifications
 			.filter((e) => e.id !== notificationId)
 			.filter((e) => !e.seen)
 			.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			.slice(0, 5);
 		navbarLatestUserNotifications.set(navbarNotifications);
-		navbarNotificationsCount.update((value) => value - 1);
+		if (!isUnreadNotification) {
+			navbarNotificationsCount.update((value) => value - 1);
+		}
 	};
 </script>
 
@@ -69,15 +107,21 @@
 		<button
 			role="tab"
 			class={`tab ${$notificationsFilter === 'All' ? 'tab-active' : ''}`}
-			on:click={() => {
+			on:click={async () => {
 				notificationsFilter.set('All');
-				userNotifications.set(data.userNotifications);
+				// api call
+				let notificationsResponse = await getUserNotifications(
+					data.notificationBaseUrl,
+					data.token,
+					user.email
+				);
+				notificationsResponse.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+				// Update page Notifications state
+				userNotifications.set(notificationsResponse);
 				pageNotifications.set(
 					$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
 				);
-				pageNumber.set(
-					userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
-				);
+				pageNumber.set(setPageNumber($userNotifications));
 			}}
 		>
 			All
@@ -86,21 +130,54 @@
 			role="tab"
 			class={`tab ${$notificationsFilter !== 'All' ? 'tab-active' : ''}`}
 			on:click={() => {
+				// Update page Notifications state
 				notificationsFilter.set('Unread');
-				userNotifications.set($userNotifications.filter((notification) => !notification.seen));
-				pageNumber.set(
-					userNotifications ? Math.floor($userNotifications.length / $pageSize) + 1 : 1
-				);
-				if ($currentPage > $pageNumber) {
-					currentPage.set($pageNumber);
+				if ($userNotifications.filter((e) => !e.seen).length > 0) {
+					userNotifications.set($userNotifications.filter((notification) => !notification.seen));
+					pageNumber.set(setPageNumber($userNotifications));
+					if ($currentPage > $pageNumber) {
+						currentPage.set($pageNumber);
+					}
+					pageNotifications.set(
+						$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
+					);
+				} else {
+					userNotifications.set([]);
+					pageNotifications.set([]);
 				}
-				pageNotifications.set(
-					$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
-				);
 			}}
 		>
 			Unread
 		</button>
+
+		{#if $userNotifications.filter((e) => !e.seen).length > 0}
+			<button
+				role="tab"
+				class={`tab`}
+				on:click={async () => {
+					// api call
+					await updateBulkNotification(data.notificationBaseUrl, data.token, { seen: true });
+					let notificationsResponse = await getUserNotifications(
+						data.notificationBaseUrl,
+						data.token,
+						user.email
+					);
+					notificationsResponse.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+					// Update page Notifications state
+					userNotifications.set(notificationsResponse);
+					pageNotifications.set(
+						$userNotifications.slice(($currentPage - 1) * $pageSize, $currentPage * $pageSize)
+					);
+					pageNumber.set(setPageNumber($userNotifications));
+					currentPage.set(1);
+					notificationsFilter.set('All');
+					navbarLatestUserNotifications.set([]);
+					navbarNotificationsCount.set(0);
+				}}
+			>
+				Mark All As Read
+			</button>
+		{/if}
 	</div>
 	{#if userNotifications}
 		<table class="table">
@@ -150,23 +227,27 @@
 				{/each}
 			</tbody>
 		</table>
-		<div class="join my-10 flex justify-center">
-			{#each Array.from({ length: $pageNumber }, (_, i) => i + 1) as pageIndex}
-				<button
-					class={`join-item btn ${
-						$currentPage === pageIndex
-							? 'btn-primary'
-							: 'hover:bg-slate-300 transition duration-150 ease-in-out'
-					}`}
-					on:click={() => {
-						currentPage.set(pageIndex);
-						pageNotifications.set(
-							$userNotifications.slice((pageIndex - 1) * $pageSize, pageIndex * $pageSize)
-						);
-					}}>{pageIndex}</button
-				>
-			{/each}
-		</div>
+		{#if $userNotifications.filter((e) => !e.seen).length > 0 || $notificationsFilter !== 'Unread'}
+			<div class="join my-10 flex justify-center">
+				{#each Array.from({ length: $pageNumber }, (_, i) => i + 1) as pageIndex}
+					<button
+						class={`join-item btn ${
+							$currentPage === pageIndex
+								? 'btn-primary'
+								: 'hover:bg-slate-300 transition duration-150 ease-in-out'
+						}`}
+						on:click={() => {
+							currentPage.set(pageIndex);
+							pageNotifications.set(
+								$userNotifications.slice((pageIndex - 1) * $pageSize, pageIndex * $pageSize)
+							);
+						}}>{pageIndex}</button
+					>
+				{/each}
+			</div>
+		{:else}
+			<h1 class="text-center text-2xl font-extrabold">No Unread Notifications were found</h1>
+		{/if}
 	{:else}
 		<div>
 			<h1 class="text-center text-2xl font-extrabold">No Notifications were found</h1>

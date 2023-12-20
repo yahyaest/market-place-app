@@ -125,6 +125,33 @@ export const updateNotification = async (
 	}
 };
 
+export const updateBulkNotification = async (
+	baseUrl: string,
+	token: string,
+	payload: any
+) => {
+	try {
+		const notificationBaseUrl = baseUrl;
+		const notificationUrl = `${notificationBaseUrl}/api/bulk_notifications`;
+
+		if (!token) {
+			throw Error('No token was provided. Failed to post notification');
+		}
+
+		const options = {
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		};
+		const response = await axios.patch(notificationUrl, payload, options);
+		const notifications = response.data;
+
+		return notifications;
+	} catch (error) {
+		console.error('Failed to update notifications :', error);
+	}
+};
+
 export const deleteNotification = async (
 	baseUrl: string,
 	token: string,
