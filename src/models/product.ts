@@ -18,5 +18,8 @@ export interface Product {
 	state: string;
 	city?: string | null;
 	images?: ProductImage[];
+	imageUrl?:string;
+	ownerImage?:string;
+	ownerName?:string;
 	tags?: ProductTag[];
 }
