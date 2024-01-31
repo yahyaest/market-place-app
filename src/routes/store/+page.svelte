@@ -34,7 +34,7 @@
 								{product.title}
 							</h2>
 							<p class="text-sm font-semibold my-2">{product.price} TND</p>
-							<div class="badge badge-accent text-xs my-1">
+							<div class="badge badge-accent text-xs my-1 py-4">
 								{product.category}/{product.subCategory}
 							</div>
 							<div class="badge badge-secondary my-1">

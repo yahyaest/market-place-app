@@ -10,6 +10,7 @@
 	export let data: any;
 	export let productComments: Writable<Comment[]> = writable([]);
 	let comment = '';
+	const token = Cookies.get('token') as string;
 
 	const getProductComments = async () => {
 		const comments = data.comments;
@@ -47,22 +48,24 @@
 		<div class="flex justify-between items-center mb-6">
 			<h2 class="text-lg lg:text-2xl font-bold">Discussion ({$productComments.length})</h2>
 		</div>
-		<form class="mb-6">
-			<div
-				class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
-			>
-				<label for="comment" class="sr-only">Your comment</label>
-				<textarea
-					id="comment"
-					rows="6"
-					class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
-					placeholder="Write a comment..."
-					required
-					bind:value={comment}
-				/>
-			</div>
-			<button type="submit" class="btn btn-primary" on:click={submitComment}> Post comment </button>
-		</form>
+		{#if token}
+			<form class="mb-6">
+				<div
+					class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+				>
+					<label for="comment" class="sr-only">Your comment</label>
+					<textarea
+						id="comment"
+						rows="6"
+						class="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+						placeholder="Write a comment..."
+						required
+						bind:value={comment}
+					/>
+				</div>
+				<button type="submit" class="btn btn-primary" on:click={submitComment}> Post comment </button>
+			</form>
+		{/if}
 		{#each $productComments as comment}
 		<CommentComponent bind:data bind:commentData={comment}/>
 		{/each}
