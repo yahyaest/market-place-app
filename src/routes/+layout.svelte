@@ -119,6 +119,7 @@
 							<li data-set-theme="retro"><a>Retro</a></li>
 							<li data-set-theme="aqua"><a>Aqua</a></li>
 							<li data-set-theme="synthwave"><a>Synthwave</a></li>
+							<li data-set-theme="cyberpunk"><a>Cyberpunk</a></li>
 						</ul>
 					</details>
 				</li>

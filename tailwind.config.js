@@ -7,7 +7,7 @@ export default {
 		extend: {}
 	},
 	daisyui: {
-		themes: ['light', 'dark', 'cupcake', 'luxury', 'coffee', 'night', 'retro', 'aqua', 'synthwave']
+		themes: ['light', 'dark', 'cupcake', 'luxury', 'coffee', 'night', 'retro', 'aqua', 'synthwave', 'cyberpunk']
 	},
 	plugins: [require('daisyui'), formsPlugin, require('flowbite/plugin')]
 };
