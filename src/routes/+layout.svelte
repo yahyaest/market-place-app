@@ -7,6 +7,7 @@
 	import { goto } from '$app/navigation';
 	import { writable, type Writable } from 'svelte/store';
 	import type { User } from '../models/user';
+	import type { Product } from '../models/product';
 	import Cookies from 'js-cookie';
 	import {
 		navbarNotificationsCount,
@@ -18,6 +19,7 @@
 	} from '../store';
 	import { io } from 'socket.io-client';
 	import { formatRelativeTime } from '$lib/utils';
+	import axios from 'axios';
 
 	const socket = io();
 
@@ -52,6 +54,11 @@
 	navbarAllUserNotifications.set(data.allUserNotifications);
 	navbarOfferItemsNumber.set(offerItemsNumber);
 	navbarOfferItemsValue.set(offerItemsValue);
+	let formControl: any;
+	const searchQuery: Writable<string> = writable('');
+	const showSearchDropdown: Writable<boolean> = writable(false);
+	const productsSearchResult: Writable<Product[]> = writable([]);
+	const productsSearchCount: Writable<number> = writable(0);
 
 	const handleNotificationMouseOver = async (
 		notificationId: number,
@@ -90,6 +97,17 @@
 	onMount(() => {
 		themeChange(false);
 		// 👆 false parameter is required for svelte
+		const handleClickOutside = (event: MouseEvent) => {
+			if (formControl && !formControl.contains(event.target)) {
+				showSearchDropdown.set(false);
+			}
+		};
+
+		window.addEventListener('click', handleClickOutside);
+
+		return () => {
+			window.removeEventListener('click', handleClickOutside);
+		};
 	});
 </script>
 
@@ -100,8 +118,66 @@
 	</div>
 
 	<div class="flex-none gap-2">
-		<div class="form-control">
-			<input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
+		<div
+			class="form-control"
+			bind:this={formControl}
+			on:click|stopPropagation
+			on:keydown={() => {}}
+			role="button"
+			tabindex="0"
+		>
+			<div class="relative">
+				<input
+					type="text"
+					placeholder="Search"
+					class="input input-bordered w-24 md:w-auto"
+					on:input={async (e) => {
+						showSearchDropdown.set(true);
+						searchQuery.set(e.target?.value);
+						const response = await axios.get(
+							`/api/products_search?search_query=${e.target?.value}`
+						);
+						productsSearchResult.set(response.data.products);
+						productsSearchCount.set(response.data.products.length);
+					}}
+				/>
+				{#if $showSearchDropdown && $searchQuery.length > 0}
+					<ul
+						class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-[32rem] absolute top-full left-0"
+					>
+						{#each $productsSearchResult.splice(0, 5) as product, index (product)}
+							<li>
+								<div
+									class="flex flex-row justify-between"
+									on:click={() => window.location.replace(`/products/${product.slug}`)}
+									on:keydown={() => {}}
+									role="button"
+									tabindex="0"
+								>
+									<img
+										class="btn btn-ghost btn-circle avatar"
+										src={`${product.imageUrl}`}
+										alt={product.imageUrl}
+									/>
+									<p class="text-xs font-semibold text-center">{product.title}</p>
+									<span class="badge badge-md badge-primary text-xs flex">
+										<p>{product.price}</p>
+										&nbsp;
+										<p>TND</p>
+									</span>
+								</div>
+							</li>
+						{/each}
+						<button
+							class="text-center text-md font-bold my-1"
+							on:click={() => window.location.replace(`/search/${$searchQuery}`)}
+							on:keydown={() => {}}
+						>
+							See all {$productsSearchCount} search results for {$searchQuery}
+						</button>
+					</ul>
+				{/if}
+			</div>
 		</div>
 
 		<div class="flex-none">
@@ -110,16 +186,16 @@
 					<details>
 						<summary> Theme </summary>
 						<ul class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-							<li data-set-theme="dark"><a>Dark</a></li>
-							<li data-set-theme="night"><a>Night</a></li>
-							<li data-set-theme="coffee"><a>Coffee</a></li>
-							<li data-set-theme="light"><a>Light</a></li>
-							<li data-set-theme="cupcake"><a>Cupcake</a></li>
-							<li data-set-theme="luxury"><a>Luxury</a></li>
-							<li data-set-theme="retro"><a>Retro</a></li>
-							<li data-set-theme="aqua"><a>Aqua</a></li>
-							<li data-set-theme="synthwave"><a>Synthwave</a></li>
-							<li data-set-theme="cyberpunk"><a>Cyberpunk</a></li>
+							<li data-set-theme="dark"><div>Dark</div></li>
+							<li data-set-theme="night"><div>Night</div></li>
+							<li data-set-theme="coffee"><div>Coffee</div></li>
+							<li data-set-theme="light"><div>Light</div></li>
+							<li data-set-theme="cupcake"><div>Cupcake</div></li>
+							<li data-set-theme="luxury"><div>Luxury</div></li>
+							<li data-set-theme="retro"><div>Retro</div></li>
+							<li data-set-theme="aqua"><div>Aqua</div></li>
+							<li data-set-theme="synthwave"><div>Synthwave</div></li>
+							<li data-set-theme="cyberpunk"><div>Cyberpunk</div></li>
 						</ul>
 					</details>
 				</li>
