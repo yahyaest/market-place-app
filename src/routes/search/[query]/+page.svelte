@@ -39,14 +39,15 @@
 					<tr>
 						<th>Product</th>
 						<th>Owner</th>
-						<th>price</th>
+						<th>Price</th>
+						<th>Is Sold</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each $pageProducts as product, index (product)}
 						<tr
 							class={`hover:bg-slate-300 transition duration-150 ease-in-out cursor-pointer`}
-							on:click={goto(`/products/${product.slug}`)}
+							on:click={() => goto(`/products/${product.slug}`)}
 						>
 							<td>
 								<div class="flex items-center gap-3">
@@ -81,6 +82,11 @@
 							</td>
 							<td>
 								{product.price} TND
+							</td>
+							<td>
+								<span class="badge badge-md badge-primary text-xs">
+									{product.sold ? 'Sold' : 'Available'}
+								</span>
 							</td>
 						</tr>
 					{/each}

@@ -102,9 +102,11 @@ const getProductSearchResult = async (query: string) => {
 		product.ownerImage = ownerInfo.ownerImage;
 		product.ownerName = ownerInfo.ownerUsername;
 
-		if (!product.sold) {
-			productsSearchResult.push(product);
-		}
+		// if (!product.sold) {
+		// 	productsSearchResult.push(product);
+		// }
+		productsSearchResult.push(product);
+
 	}
 
 	return productsSearchResult;
@@ -114,7 +116,6 @@ export const load = (async ({ params }) => {
 	const { query } = params;
 	try {
 		const productsSearchResult = await getProductSearchResult(query);
-
 		return {
 			gatewayBaseUrl: process.env.GATEWAY_BASE_URL,
 			searchQuery: query,

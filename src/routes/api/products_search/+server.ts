@@ -1,7 +1,8 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import prisma from '$lib/prisma';
-import type { Product, Tag } from '@prisma/client';
+import type { Tag } from '@prisma/client';
+import type { Product } from '../../../models/product';
 
 export const GET: RequestHandler = async (request): Promise<Response> => {
 	try {
@@ -89,7 +90,11 @@ export const GET: RequestHandler = async (request): Promise<Response> => {
 		// Return search result
 		const productsSearchResult: Product[] = [];
 		for (const element of productsSearchList) {
-			productsSearchResult.push(element.data);
+			const product: Product = element.data;
+			// Add product image
+			const productImages = await prisma.image.findMany({ where: { productId: product.id } });
+			product.imageUrl = productImages[0].url;
+			productsSearchResult.push(product);
 		}
 		return json({ products: productsSearchResult }, { status: 200 });
 	} catch (err) {
