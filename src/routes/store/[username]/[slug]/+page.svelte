@@ -35,7 +35,8 @@
 				title: notification.title,
 				message: notification.message,
 				sender: user.username,
-				seen: false
+				seen: false,
+				externalArgs: JSON.stringify({})
 			};
 
 			return await addUserNotification(notificationBaseUrl, token, userNotificationPayload);

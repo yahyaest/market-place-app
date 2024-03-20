@@ -55,7 +55,8 @@
 				title: 'Delete Product Offer',
 				message: `You Deleted your offer to ${offer.productOwnerUsername} for product ${offer.productTitle}`,
 				sender: user.username,
-				seen: false
+				seen: false,
+				externalArgs: JSON.stringify({})
 			};
 
 			return await addUserNotification(notificationBaseUrl, token, userNotificationPayload);

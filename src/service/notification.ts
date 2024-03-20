@@ -62,7 +62,9 @@ export const addProductOwnerNotification = async (
 			userId: productOwnerUser?.id,
 			title: data.title,
 			message: data.message,
-			seen: false
+			sender:	data.sender,
+			seen: false,
+			externalArgs: data.externalArgs ?	data.externalArgs : JSON.stringify({})
 		};
 
 		const response = await axios.post(notificationUrl, payload, options);

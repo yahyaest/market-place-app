@@ -101,7 +101,8 @@
 							productOwner ? productOwner : offer.productOwnerUsername
 					  } for product ${productTitle} with amount of ${offerAmount} TND`,
 				sender: user.username,
-				seen: false
+				seen: false,
+				externalArgs: JSON.stringify({})
 			};
 
 			return await addUserNotification(notificationBaseUrl, token, userNotificationPayload);
@@ -139,19 +140,23 @@
 	};
 
 	const updateNavbarState = (notification: Notification, distantNotification: Notification) => {
-		navbarNotificationsCount.update((value) => value + 1);
-		let notifications = [...$navbarLatestUserNotifications];
-		notifications.pop();
-		notifications.unshift(notification);
-		navbarLatestUserNotifications.set(notifications);
-		navbarOfferItemsNumber.update((value) => value + 1);
-		navbarOfferItemsValue.update((value) => value - intialOfferAmount + offerAmount);
-		// Update distant user navber with websoket
-		socket.emit('updateNavbarNotificatinsFromClient', {
-			toUser: distantNotification.userEmail,
-			notificationNumberToAdd: 1,
-			notification: distantNotification
-		});
+		try{		
+			navbarNotificationsCount.update((value) => value + 1);
+			let notifications = [...$navbarLatestUserNotifications];
+			notifications.pop();
+			notifications.unshift(notification);
+			navbarLatestUserNotifications.set(notifications);
+			navbarOfferItemsNumber.update((value) => value + 1);
+			navbarOfferItemsValue.update((value) => value - intialOfferAmount + offerAmount);
+			// Update distant user navber with websoket
+			socket.emit('updateNavbarNotificatinsFromClient', {
+				toUser: distantNotification.userEmail,
+				notificationNumberToAdd: 1,
+				notification: distantNotification
+			})
+		} catch	(error) {
+			console.error("updateNavbarState Error : ",error);
+		}
 	};
 
 	const handleSubmit = async () => {

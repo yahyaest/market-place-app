@@ -11,4 +11,5 @@ export interface Notification {
 	sender: string;
 	seen: boolean;
 	isHovered?: boolean
+	externalArgs?: string;
 }
